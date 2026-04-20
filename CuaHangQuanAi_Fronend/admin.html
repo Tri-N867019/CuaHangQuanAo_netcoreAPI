@@ -635,7 +635,7 @@
            ========================================================================== */
         async function loadStats() {
             try {
-                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/overview');
+                const res = await authFetch('https://nt-clothing.onrender.com/api/ThongKe/overview');
                 if (!res.ok) throw new Error('Failed to fetch stats');
                 const data = await res.json();
 
@@ -650,7 +650,7 @@
 
         async function loadReports() {
             try {
-                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/overview');
+                const res = await authFetch('https://nt-clothing.onrender.com/api/ThongKe/overview');
                 if (res.status === 401) return (alert('Phiên hết hạn!'), window.location.href = 'dang-nhap.html');
                 
                 const data = await res.json();
@@ -672,7 +672,7 @@
         async function loadCharts() {
             try {
                 // Biểu đồ trạng thái đơn hàng
-                const r1 = await authFetch('https://nt-clothing.onrender.com/ThongKe/order-status-distribution');
+                const r1 = await authFetch('https://nt-clothing.onrender.com/api/ThongKe/order-status-distribution');
                 const data1 = await r1.json();
                 const ctx1 = document.getElementById('statusChart');
                 if (charts.status) charts.status.destroy();
@@ -695,7 +695,7 @@
                 });
 
                 // Biểu đồ doanh thu theo tháng
-                const r2 = await authFetch('https://nt-clothing.onrender.com/ThongKe/monthly-sales');
+                const r2 = await authFetch('https://nt-clothing.onrender.com/api/ThongKe/monthly-sales');
                 const data2 = await r2.json();
                 const ctx2 = document.getElementById('monthlyChart');
                 if (charts.monthly) charts.monthly.destroy();
@@ -725,7 +725,7 @@
 
         async function loadTopProducts() {
             try {
-                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/top-selling-products?topN=10');
+                const res = await authFetch('https://nt-clothing.onrender.com/api/ThongKe/top-selling-products?topN=10');
                 const data = await res.json();
                 
                 let html = `<div class="table-responsive"><table class="table table-hover">
@@ -746,7 +746,7 @@
         async function loadProducts() {
             const tbody = document.getElementById('products-table-body');
             try {
-                const res = await authFetch('https://nt-clothing.onrender.com/SanPham');
+                const res = await authFetch('https://nt-clothing.onrender.com/api/SanPham');
                 if (!res.ok) throw new Error(res.status === 403 ? 'Không có quyền truy cập' : 'Lỗi máy chủ');
                 const data = await res.json();
                 
@@ -804,11 +804,11 @@
             try {
                 // Đảm bảo có master data để fallback
                 if (masterColors.length === 0) {
-                    const cRes = await authFetch('https://nt-clothing.onrender.com/MauSac');
+                    const cRes = await authFetch('https://nt-clothing.onrender.com/api/MauSac');
                     masterColors = await cRes.json();
                 }
 
-                const res = await authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/api/SanPhamBienThe/sanpham/${productId}`);
                 const data = await res.json();
                 const list = document.getElementById(`variant-list-${productId}`);
                 if (!list) return;
@@ -840,15 +840,15 @@
                 // Đảm bảo masterColors/Sizes đã tải
                 if (masterColors.length === 0 || masterSizes.length === 0) {
                     const [cRes, sRes, vRes] = await Promise.all([
-                        authFetch('https://nt-clothing.onrender.com/MauSac'),
-                        authFetch('https://nt-clothing.onrender.com/Size'),
-                        authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`)
+                        authFetch('https://nt-clothing.onrender.com/api/MauSac'),
+                        authFetch('https://nt-clothing.onrender.com/api/Size'),
+                        authFetch(`https://nt-clothing.onrender.com/api/SanPhamBienThe/sanpham/${productId}`)
                     ]);
                     masterColors = await cRes.json();
                     masterSizes = await sRes.json();
                     var variants = await vRes.json();
                 } else {
-                    const vRes = await authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`);
+                    const vRes = await authFetch(`https://nt-clothing.onrender.com/api/SanPhamBienThe/sanpham/${productId}`);
                     var variants = await vRes.json();
                 }
                 
@@ -945,7 +945,7 @@
 
             const dto = { sanPhamId: productId, mauId: parseInt(mauId), sizeId: parseInt(sizeId), soLuongTon: parseInt(qty) || 0 };
             try {
-                const res = await authFetch('https://nt-clothing.onrender.com/SanPhamBienThe', {
+                const res = await authFetch('https://nt-clothing.onrender.com/api/SanPhamBienThe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dto)

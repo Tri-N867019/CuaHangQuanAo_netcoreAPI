@@ -6,12 +6,15 @@
    ========================================================================== */
 
 // 1. CẤU HÌNH & XÁC THỰC
-const API_BASE_URL = 'https://nt-clothing.onrender.com';
+const API_BASE_URL = 'https://nt-clothing.onrender.com/api';
 
 function authFetch(url, options = {}) {
-    const fullUrl = (url.startsWith('/api') || url.startsWith('api'))
-        ? `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`
-        : url;
+    let fullUrl = url;
+    if (!url.startsWith('http')) {
+        // Nếu là relative path, thêm API_BASE_URL. Đảm bảo không bị dư dấu /
+        const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+        fullUrl = `${API_BASE_URL}/${cleanUrl}`;
+    }
 
     const token = localStorage.getItem('token');
     const headers = { ...options.headers };
@@ -73,7 +76,7 @@ window.alert = function (msg) {
 function layDanhSachSanPham() {
     const urlParamsSearch = new URLSearchParams(window.location.search);
     const searchKeyword = urlParamsSearch.get('search');
-    let apiUrl = `${API_BASE_URL}/api/SanPham`;
+    let apiUrl = `SanPham`;
     if (searchKeyword) apiUrl += `?search=${encodeURIComponent(searchKeyword)}`;
 
     authFetch(apiUrl)
@@ -238,7 +241,7 @@ async function loadHeaderFooter() {
 }
 
 function layThuongHieuChoHeader() {
-    authFetch('/api/ThuongHieu')
+    authFetch('ThuongHieu')
         .then(res => res.json())
         .then(data => {
             const menu = document.getElementById('menu-thuonghieu-header');
@@ -258,7 +261,7 @@ function layThuongHieuChoHeader() {
 }
 
 function layLoaiSPChoHeader() {
-    authFetch('/api/LoaiSP')
+    authFetch('LoaiSP')
         .then(res => res.json())
         .then(data => {
             const menu = document.getElementById('menu-danhmuc-header');
@@ -298,7 +301,7 @@ function layLoaiSPChoHeader() {
 
 function layDanhSachMauSac() {
     const container = document.getElementById('filter-colors'); if (!container) return;
-    authFetch('/api/MauSac')
+    authFetch('MauSac')
         .then(res => res.json())
         .then(data => {
             const unique = []; const seen = new Set();
@@ -337,7 +340,7 @@ function layChiTietSanPham(id) {
     const container = document.getElementById('product-detail-container');
     if (!container) return;
 
-    authFetch(`/api/SanPham/chitiet/${id}`)
+    authFetch(`SanPham/chitiet/${id}`)
         .then(res => res.json())
         .then(sp => {
             document.getElementById('breadcrumb-name').innerText = sp.ten;
@@ -472,7 +475,7 @@ async function themVaoGio(productId) {
 
     if (token) {
         try {
-            const res = await authFetch('/api/GioHang', {
+            const res = await authFetch('GioHang', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sanPhamBienTheId: variantId, soLuong: qty })
@@ -492,7 +495,7 @@ async function syncLocalCartToBackend() {
     const local = getCart(); if (!local.length) return;
 
     for (const item of local) {
-        await authFetch('/api/GioHang', {
+        await authFetch('GioHang', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sanPhamBienTheId: item.id, soLuong: item.qty })
@@ -520,7 +523,7 @@ async function updateCartBadge() {
     let total = 0;
     if (token) {
         try {
-            const res = await authFetch('/api/GioHang');
+            const res = await authFetch('GioHang');
             if (res.ok) { const data = await res.json(); total = data.reduce((s, i) => s + (i.soLuong || 0), 0); }
         } catch (err) { console.error(err); }
     } else {
@@ -602,7 +605,7 @@ function kiemTraDangNhap() {
 async function showAccountInfoModal() {
     const old = document.getElementById('accountInfoModal'); if (old) old.remove();
     try {
-        const res = await authFetch('/api/User/profile');
+        const res = await authFetch('User/profile');
         if (!res.ok) return alert('Vui lòng đăng nhập lại');
         const u = await res.json();
 
@@ -651,7 +654,7 @@ async function loadProfilePage() {
     if (!token) return container.innerHTML = '<div class="alert alert-warning">Vui lòng <a href="dang-nhap.html">đăng nhập</a> để xem hồ sơ.</div>';
 
     try {
-        const res = await authFetch('/api/User/profile');
+        const res = await authFetch('User/profile');
         if (!res.ok) { if (res.status === 401) dangXuat(); throw new Error('Lỗi tải hồ sơ'); }
         const user = await res.json();
 
@@ -739,7 +742,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             btn.disabled = true; btn.innerText = 'Đang xử lý...';
             try {
-                const res = await authFetch('/api/Auth/login', {
+                const res = await authFetch('Auth/login', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ tenDangNhap: fLogin.username.value, matKhau: fLogin.password.value })
                 });
@@ -775,7 +778,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             btn.disabled = true;
             try {
-                const res = await authFetch('/api/Auth/register', {
+                const res = await authFetch('Auth/register', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...data, phanQuyenId: 4 })
                 });
@@ -794,7 +797,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadOrderHistory() {
     const list = document.getElementById('order-history-body'); if (!list) return;
     try {
-        const res = await authFetch('/api/HoaDon/lich-su');
+        const res = await authFetch('HoaDon/lich-su');
         if (!res.ok) return list.innerHTML = '<tr><td colspan="5" class="text-center">Vui lòng đăng nhập.</td></tr>';
         const orders = await res.json();
         if (!orders.length) return list.innerHTML = '<tr><td colspan="5" class="text-center">Chưa có đơn hàng nào.</td></tr>';
