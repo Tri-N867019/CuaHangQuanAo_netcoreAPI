@@ -115,14 +115,31 @@ builder.Services.AddScoped<IVnpayService, VnpayService>();
 
 builder.Services.AddCors(options => {
     options.AddPolicy("FrontendPolicy", b => 
-        b.WithOrigins("https://cuahangquanao-nt-clothing.onrender.com", "http://127.0.0.1:5500", "http://localhost:5500")
+        b.AllowAnyOrigin() // TẠM THỜI: Cho phép tất cả để chẩn đoán lỗi 500
          .AllowAnyMethod()
          .AllowAnyHeader());
 });
 
 var app = builder.Build();
 
-// [SỬA LỖI CORS]: UseCors nên được đặt ngay sau Build() và trước các middleware khác
+// [SỬA LỖI]: Thêm middleware bắt lỗi toàn cục để hiện log trên Render
+app.Use(async (context, next) => {
+    try {
+        await next();
+    } catch (Exception ex) {
+        Console.WriteLine($"[CRITICAL ERROR]: {ex.Message}");
+        Console.WriteLine($"[STACK TRACE]: {ex.StackTrace}");
+        
+        context.Response.StatusCode = 500;
+        context.Response.Headers.Append("Access-Control-Allow-Origin", "*"); // Đảm bảo lỗi vẫn có header CORS
+        await context.Response.WriteAsJsonAsync(new { 
+            error = "Internal Server Error", 
+            message = ex.Message,
+            details = app.Environment.IsDevelopment() ? ex.StackTrace : "Xem log trên Render dashboard"
+        });
+    }
+});
+
 app.UseCors("FrontendPolicy");
 
 if (app.Environment.IsDevelopment())
@@ -141,18 +158,29 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Seed Data
+// Seed Data & Diagnostic Check
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<CuaHangQuanAoDbContext>();
+    
     try
     {
-        var context = services.GetRequiredService<CuaHangQuanAoDbContext>();
+        Console.WriteLine("--- DIAGNOSTIC: Checking DB Connection ---");
+        if (context.Database.CanConnect()) {
+            Console.WriteLine("--- DIAGNOSTIC: DB Connection SUCCESSFUL ---");
+        } else {
+            Console.WriteLine("--- DIAGNOSTIC: DB Connection FAILED (CanConnect returned false) ---");
+        }
+        
         DbInitializer.Initialize(context);
+        Console.WriteLine("--- DIAGNOSTIC: Seed Data Completed ---");
     }
     catch (Exception ex)
     {
-        Console.WriteLine("Lỗi Seed Data: " + ex.Message);
+        Console.WriteLine("--- DIAGNOSTIC: ERROR ---");
+        Console.WriteLine("Lỗi Database: " + ex.Message);
+        if (ex.InnerException != null) Console.WriteLine("Inner Error: " + ex.InnerException.Message);
     }
 }
 
