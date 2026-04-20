@@ -2310,7 +2310,7 @@
                 list.innerHTML = data.map(img => `
                     <div class="col-md-3">
                         <div class="card h-100">
-                            <img src="${img.tenAnhSP}" class="card-img-top" style="height:100px;object-fit:cover">
+                            <img src="${getBackendImageUrl(img.tenAnhSP)}" class="card-img-top" style="height:100px;object-fit:cover">
                             <div class="card-footer p-1"><button class="btn btn-sm btn-outline-danger w-100" onclick="deleteImage(${img.id}, ${pid})">Xóa</button></div>
                         </div>
                     </div>`).join('') || '<p class="text-center text-muted">Chưa có ảnh.</p>';
@@ -2322,7 +2322,7 @@
             if (!files.length) return alert('Chọn ảnh!');
             for (let f of files) {
                 const fd = new FormData(); fd.append('file', f); fd.append('sanPhamId', pid);
-                await fetch('AnhSanPham', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: fd });
+                await authFetch('AnhSanPham', { method: 'POST', body: fd });
             }
             alert('Đã tải xong!'); loadProductImages(pid);
         }
