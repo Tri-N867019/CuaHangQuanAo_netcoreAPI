@@ -364,13 +364,22 @@
         const API_BASE = 'https://nt-clothing.onrender.com/api';
         let charts = {};
 
-        function authFetch(url, options = {}) {
+        async function authFetch(url, options = {}) {
+            let fullUrl = url;
+            if (!url.startsWith('http')) {
+                let cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+                if (cleanUrl.startsWith('api/')) {
+                    cleanUrl = cleanUrl.substring(4);
+                }
+                fullUrl = `${API_BASE}/${cleanUrl}`;
+            }
+
             const token = localStorage.getItem('token');
             const headers = options.headers ? {...options.headers} : {};
             if (token) {
                 headers['Authorization'] = 'Bearer ' + token;
             }
-            return fetch(url, { ...options, headers });
+            return fetch(fullUrl, { ...options, headers });
         }
 
         function formatCurrency(value) {
@@ -382,7 +391,7 @@
 
         async function loadStatistics() {
             try {
-                const response = await authFetch(`${API_BASE}/ThongKe/overview`);
+                const response = await authFetch('ThongKe/overview');
                 const data = await response.json();
 
                 // Update stat cards
@@ -407,7 +416,7 @@
 
         async function loadOrderStatusChart() {
             try {
-                const response = await authFetch(`${API_BASE}/ThongKe/order-status-distribution`);
+                const response = await authFetch('ThongKe/order-status-distribution');
                 const data = await response.json();
 
                 const ctx = document.getElementById('statusChart');
@@ -442,7 +451,7 @@
 
         async function loadMonthlySalesChart() {
             try {
-                const response = await authFetch(`${API_BASE}/ThongKe/monthly-sales`);
+                const response = await authFetch('ThongKe/monthly-sales');
                 const data = await response.json();
 
                 const ctx = document.getElementById('monthlyChart');
@@ -480,7 +489,7 @@
 
         async function loadTopProducts() {
             try {
-                const response = await authFetch(`${API_BASE}/ThongKe/top-selling-products?topN=10`);
+                const response = await authFetch('ThongKe/top-selling-products?topN=10');
                 const data = await response.json();
 
                 let html = '<div class="table-responsive"><table class="table table-hover"><thead>';
@@ -503,7 +512,7 @@
 
         async function loadOrders() {
             try {
-                const response = await authFetch(`${API_BASE}/HoaDon/all`);
+                const response = await authFetch('HoaDon/all');
                 const orders = await response.json();
 
                 let html = '<div class="table-responsive"><table class="table table-hover"><thead>';
@@ -532,9 +541,9 @@
 
         async function loadUsers() {
             try {
-                let response = await authFetch(`${API_BASE}/User/all`);
+                let response = await authFetch('User/all');
                 if (!response.ok) {
-                    response = await authFetch(`${API_BASE}/User`); // fallback route
+                    response = await authFetch('User'); // fallback route
                 }
                 if (!response.ok) {
                     throw new Error('Không thể gọi API /api/User/all hoặc /api/User');

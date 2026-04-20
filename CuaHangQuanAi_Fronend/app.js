@@ -11,8 +11,17 @@ const API_BASE_URL = 'https://nt-clothing.onrender.com/api';
 function authFetch(url, options = {}) {
     let fullUrl = url;
     if (!url.startsWith('http')) {
-        // Nếu là relative path, thêm API_BASE_URL. Đảm bảo không bị dư dấu /
-        const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+        // Chuẩn hóa url: Loại bỏ gạch chéo đầu nếu có
+        let cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+        
+        // Nếu url chưa bắt đầu bằng 'api/', thêm nó vào (vì API_BASE_URL đã có /api)
+        // Tuy nhiên, nếu người dùng truyền vào mang tính chất absolute path từ root thì cần cẩn thận.
+        // Ở đây ta giả định mọi relative call trong app đều là API call trừ khi gọi local assets.
+        
+        if (cleanUrl.startsWith('api/')) {
+            cleanUrl = cleanUrl.substring(4);
+        }
+        
         fullUrl = `${API_BASE_URL}/${cleanUrl}`;
     }
 
@@ -21,6 +30,24 @@ function authFetch(url, options = {}) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     return fetch(fullUrl, { ...options, headers });
+}
+
+// Hàm lấy URL ảnh từ Backend cực kỳ an toàn
+function getBackendImageUrl(path) {
+    if (!path) return 'images/no-image.png';
+    if (path.startsWith('http')) return path;
+    
+    const backendRoot = 'https://nt-clothing.onrender.com';
+    // Đảm bảo path bắt đầu bằng /
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    
+    // Nếu trong path chưa có 'uploads/' và nó không phải là static img của backend
+    // thì ta tự động thêm /uploads/ nếu đó là ảnh sản phẩm (thường TenAnhSP không có /uploads sẵn)
+    if (!cleanPath.includes('/uploads/') && !cleanPath.includes('/img/')) {
+        return `${backendRoot}/uploads${cleanPath}`;
+    }
+    
+    return `${backendRoot}${cleanPath}`;
 }
 
 
@@ -116,7 +143,7 @@ function layDanhSachSanPham() {
             container.innerHTML = dsHienThi.length ? '' : '<div class="w-100 text-center mt-5"><p class="text-secondary">Không tìm thấy sản phẩm phù hợp.</p></div>';
 
             dsHienThi.forEach(sp => {
-                const anh = sp.hinhAnh?.startsWith('/') ? API_BASE_URL + sp.hinhAnh : (sp.hinhAnh || 'images/no-image.png');
+                const anh = getBackendImageUrl(sp.hinhAnh);
                 const km = sp.khuyenMai || 0;
                 const isSaleItem = km > 0;
                 const giaGiam = sp.giaBan - km;
@@ -202,8 +229,16 @@ function renderActiveFilters(allData, up) {
 // 3. GIAO DIỆN CHUNG
 async function loadHeaderFooter() {
     try {
-        const h = await authFetch('header.html'); document.getElementById('app-header').innerHTML = await h.text();
-        const f = await authFetch('footer.html'); document.getElementById('app-footer').innerHTML = await f.text();
+        // Sử dụng fetch mặc định cho các file tĩnh (HTML, CSS) của Frontend
+        const hRes = await fetch('header.html'); 
+        const hHtml = await hRes.text();
+        const headerContainer = document.getElementById('app-header');
+        if (headerContainer) headerContainer.innerHTML = hHtml;
+
+        const fRes = await fetch('footer.html'); 
+        const fHtml = await fRes.text();
+        const footerContainer = document.getElementById('app-footer');
+        if (footerContainer) footerContainer.innerHTML = fHtml;
 
         layThuongHieuChoHeader();
         layLoaiSPChoHeader();
@@ -698,8 +733,8 @@ function initFilterListeners() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadHeaderFooter(); updateCartBadge(); layDanhSachSanPham(); loadProfilePage();
+document.addEventListener("DOMContentLoaded", () => {
+    loadHeaderFooter(); updateCartBadge(); layDanhSachSanPham(); loadProfilePage();
 
     // Filter Sale
     const chkSale = document.getElementById('filter-sale');

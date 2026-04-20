@@ -59,6 +59,15 @@
         const charts = {};
 
         async function authFetch(url, options = {}) {
+            let fullUrl = url;
+            if (!url.startsWith('http')) {
+                let cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+                if (cleanUrl.startsWith('api/')) {
+                    cleanUrl = cleanUrl.substring(4);
+                }
+                fullUrl = `${API_BASE}/${cleanUrl}`;
+            }
+
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = 'dang-nhap.html';
@@ -67,7 +76,7 @@
             const headers = options.headers ? {...options.headers} : {};
             headers['Authorization'] = 'Bearer ' + token;
             
-            const res = await fetch(url, { ...options, headers });
+            const res = await fetch(fullUrl, { ...options, headers });
             if (res.status === 401 || res.status === 403) {
                 alert('Bạn không có quyền truy cập hoặc phiên đăng nhập đã hết hạn!');
                 window.location.href = 'dang-nhap.html';
@@ -81,7 +90,7 @@
         }
 
         async function loadOverview() {
-            const res = await authFetch(`${API_BASE}/ThongKe/overview`);
+            const res = await authFetch('ThongKe/overview');
             const data = await res.json();
             document.getElementById('totalOrders').textContent = data.totalOrders ?? '-';
             document.getElementById('pendingOrders').textContent = data.pendingOrders ?? '-';
@@ -95,7 +104,7 @@
         }
 
         async function loadCharts() {
-            const r1 = await authFetch(`${API_BASE}/ThongKe/order-status-distribution`);
+            const r1 = await authFetch('ThongKe/order-status-distribution');
             const data1 = await r1.json();
             const ctx1 = document.getElementById('statusChart');
             if (charts.status) charts.status.destroy();
@@ -105,7 +114,7 @@
                 options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
             });
 
-            const r2 = await authFetch(`${API_BASE}/ThongKe/monthly-sales`);
+            const r2 = await authFetch('ThongKe/monthly-sales');
             const data2 = await r2.json();
             const ctx2 = document.getElementById('monthlyChart');
             if (charts.monthly) charts.monthly.destroy();
@@ -117,7 +126,7 @@
         }
 
         async function loadTopProducts() {
-            const res = await authFetch(`${API_BASE}/ThongKe/top-selling-products?topN=10`);
+            const res = await authFetch('ThongKe/top-selling-products?topN=10');
             if (!res.ok) {
                 throw new Error('Không thể gọi API thống kê top sản phẩm');
             }
