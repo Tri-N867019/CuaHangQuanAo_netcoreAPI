@@ -169,6 +169,10 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("--- DIAGNOSTIC: Checking DB Connection ---");
         if (context.Database.CanConnect()) {
             Console.WriteLine("--- DIAGNOSTIC: DB Connection SUCCESSFUL ---");
+            
+            Console.WriteLine("--- DIAGNOSTIC: Running Migrations ---");
+            context.Database.Migrate(); // Tự động tạo bảng nếu chưa có
+            Console.WriteLine("--- DIAGNOSTIC: Migrations Completed ---");
         } else {
             Console.WriteLine("--- DIAGNOSTIC: DB Connection FAILED (CanConnect returned false) ---");
         }
@@ -181,6 +185,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("--- DIAGNOSTIC: ERROR ---");
         Console.WriteLine("Lỗi Database: " + ex.Message);
         if (ex.InnerException != null) Console.WriteLine("Inner Error: " + ex.InnerException.Message);
+        Console.WriteLine("Stack Trace: " + ex.StackTrace);
     }
 }
 
