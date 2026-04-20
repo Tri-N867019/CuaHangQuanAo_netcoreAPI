@@ -635,7 +635,7 @@
            ========================================================================== */
         async function loadStats() {
             try {
-                const res = await authFetch('https://localhost:7197/api/ThongKe/overview');
+                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/overview');
                 if (!res.ok) throw new Error('Failed to fetch stats');
                 const data = await res.json();
 
@@ -650,7 +650,7 @@
 
         async function loadReports() {
             try {
-                const res = await authFetch('https://localhost:7197/api/ThongKe/overview');
+                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/overview');
                 if (res.status === 401) return (alert('Phiên hết hạn!'), window.location.href = 'dang-nhap.html');
                 
                 const data = await res.json();
@@ -672,7 +672,7 @@
         async function loadCharts() {
             try {
                 // Biểu đồ trạng thái đơn hàng
-                const r1 = await authFetch('https://localhost:7197/api/ThongKe/order-status-distribution');
+                const r1 = await authFetch('https://nt-clothing.onrender.com/ThongKe/order-status-distribution');
                 const data1 = await r1.json();
                 const ctx1 = document.getElementById('statusChart');
                 if (charts.status) charts.status.destroy();
@@ -695,7 +695,7 @@
                 });
 
                 // Biểu đồ doanh thu theo tháng
-                const r2 = await authFetch('https://localhost:7197/api/ThongKe/monthly-sales');
+                const r2 = await authFetch('https://nt-clothing.onrender.com/ThongKe/monthly-sales');
                 const data2 = await r2.json();
                 const ctx2 = document.getElementById('monthlyChart');
                 if (charts.monthly) charts.monthly.destroy();
@@ -725,7 +725,7 @@
 
         async function loadTopProducts() {
             try {
-                const res = await authFetch('https://localhost:7197/api/ThongKe/top-selling-products?topN=10');
+                const res = await authFetch('https://nt-clothing.onrender.com/ThongKe/top-selling-products?topN=10');
                 const data = await res.json();
                 
                 let html = `<div class="table-responsive"><table class="table table-hover">
@@ -746,7 +746,7 @@
         async function loadProducts() {
             const tbody = document.getElementById('products-table-body');
             try {
-                const res = await authFetch('https://localhost:7197/api/SanPham');
+                const res = await authFetch('https://nt-clothing.onrender.com/SanPham');
                 if (!res.ok) throw new Error(res.status === 403 ? 'Không có quyền truy cập' : 'Lỗi máy chủ');
                 const data = await res.json();
                 
@@ -804,11 +804,11 @@
             try {
                 // Đảm bảo có master data để fallback
                 if (masterColors.length === 0) {
-                    const cRes = await authFetch('https://localhost:7197/api/MauSac');
+                    const cRes = await authFetch('https://nt-clothing.onrender.com/MauSac');
                     masterColors = await cRes.json();
                 }
 
-                const res = await authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`);
                 const data = await res.json();
                 const list = document.getElementById(`variant-list-${productId}`);
                 if (!list) return;
@@ -840,15 +840,15 @@
                 // Đảm bảo masterColors/Sizes đã tải
                 if (masterColors.length === 0 || masterSizes.length === 0) {
                     const [cRes, sRes, vRes] = await Promise.all([
-                        authFetch('https://localhost:7197/api/MauSac'),
-                        authFetch('https://localhost:7197/api/Size'),
-                        authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`)
+                        authFetch('https://nt-clothing.onrender.com/MauSac'),
+                        authFetch('https://nt-clothing.onrender.com/Size'),
+                        authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`)
                     ]);
                     masterColors = await cRes.json();
                     masterSizes = await sRes.json();
                     var variants = await vRes.json();
                 } else {
-                    const vRes = await authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`);
+                    const vRes = await authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/sanpham/${productId}`);
                     var variants = await vRes.json();
                 }
                 
@@ -945,7 +945,7 @@
 
             const dto = { sanPhamId: productId, mauId: parseInt(mauId), sizeId: parseInt(sizeId), soLuongTon: parseInt(qty) || 0 };
             try {
-                const res = await authFetch('https://localhost:7197/api/SanPhamBienThe', {
+                const res = await authFetch('https://nt-clothing.onrender.com/SanPhamBienThe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dto)
@@ -973,7 +973,7 @@
 
                 const dto = { sanPhamId: productId, mauId: parseInt(mauId), sizeId: parseInt(sizeId), soLuongTon: parseInt(qty) };
                 try {
-                    const res = await authFetch(`https://localhost:7197/api/SanPhamBienThe/${id}`, {
+                    const res = await authFetch(`https://nt-clothing.onrender.com/SanPhamBienThe/${id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(dto)
@@ -998,7 +998,7 @@
         // Xóa sản phẩm
         function deleteProduct(productId) {
             if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
-            authFetch(`https://localhost:7197/api/SanPham/${productId}`, { method: 'DELETE' })
+            authFetch(`https://nt-clothing.onrender.com/SanPham/${productId}`, { method: 'DELETE' })
                 .then(res => res.ok ? (alert('Đã xóa!'), loadProducts()) : alert('Lỗi xóa sp'))
                 .catch(err => console.error(err));
         }
@@ -1010,7 +1010,7 @@
             const tbody = document.getElementById('orders-table-body');
             const filterUserId = document.getElementById('filter-order-userid').value;
             try {
-                const res = await authFetch('https://localhost:7197/api/HoaDon/all');
+                const res = await authFetch('https://nt-clothing.onrender.com/HoaDon/all');
                 if (!res.ok) throw new Error(res.status === 403 ? 'Bạn không có quyền xem đơn hàng' : 'Lỗi tải dữ liệu');
                 let data = await res.json();
                 if (filterUserId) data = data.filter(o => o.userId == filterUserId);
@@ -1051,7 +1051,7 @@
         async function updateOrderStatus(id, action) {
             if (!confirm('Xác nhận cập nhật trạng thái đơn hàng này?')) return;
             try {
-                const res = await authFetch(`https://localhost:7197/api/HoaDon/${id}/${action}`, { method: 'PUT' });
+                const res = await authFetch(`https://nt-clothing.onrender.com/HoaDon/${id}/${action}`, { method: 'PUT' });
                 if (res.ok) {
                     alert('Đã cập nhật!');
                     loadOrders();
@@ -1062,7 +1062,7 @@
 
         async function viewOrderDetails(orderId) {
             try {
-                const res = await authFetch(`https://localhost:7197/api/HoaDon/${orderId}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/HoaDon/${orderId}`);
                 const order = await res.json();
                 
                 const oldModal = document.getElementById('orderDetailModal');
@@ -1138,7 +1138,7 @@
            ========================================================================== */
         async function loadCategories() {
             try {
-                const res = await authFetch('https://localhost:7197/api/LoaiSP');
+                const res = await authFetch('https://nt-clothing.onrender.com/LoaiSP');
                 const data = await res.json();
                 document.getElementById('categories-table-body').innerHTML = data.map(c => `
                     <tr>
@@ -1181,7 +1181,7 @@
             };
             if (data.tenLSP.length < 2) return alert('Tên danh mục ít nhất 2 ký tự!');
             try {
-                const res = await authFetch('https://localhost:7197/api/LoaiSP', {
+                const res = await authFetch('https://nt-clothing.onrender.com/LoaiSP', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1196,12 +1196,12 @@
 
         async function deleteCategory(id) {
             if (!confirm('Xóa danh mục này?')) return;
-            authFetch(`https://localhost:7197/api/LoaiSP/${id}`, { method: 'DELETE' }).then(res => res.ok && loadCategories());
+            authFetch(`https://nt-clothing.onrender.com/LoaiSP/${id}`, { method: 'DELETE' }).then(res => res.ok && loadCategories());
         }
 
         async function loadBrands() {
             try {
-                const res = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const res = await authFetch('https://nt-clothing.onrender.com/ThuongHieu');
                 const data = await res.json();
                 document.getElementById('brands-table-body').innerHTML = data.map(b => `
                     <tr>
@@ -1244,7 +1244,7 @@
             };
             if (data.tenTH.length < 2) return alert('Tên thương hiệu ít nhất 2 ký tự!');
             try {
-                const res = await authFetch('https://localhost:7197/api/ThuongHieu', {
+                const res = await authFetch('https://nt-clothing.onrender.com/ThuongHieu', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1259,7 +1259,7 @@
 
         async function deleteBrand(id) {
             if (!confirm('Xóa thương hiệu này?')) return;
-            authFetch(`https://localhost:7197/api/ThuongHieu/${id}`, { method: 'DELETE' }).then(res => res.ok && loadBrands());
+            authFetch(`https://nt-clothing.onrender.com/ThuongHieu/${id}`, { method: 'DELETE' }).then(res => res.ok && loadBrands());
         }
 
         // Hàm quản lý ảnh sản phẩm
@@ -1302,7 +1302,7 @@
 
         async function loadProductImages(productId, containerId) {
             try {
-                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/sanpham/${productId}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/AnhSanPham/sanpham/${productId}`);
                 const data = await res.json();
                 const container = document.getElementById(containerId);
                 if (!container) return;
@@ -1349,7 +1349,7 @@
 
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await fetch('https://localhost:7197/api/AnhSanPham', {
+                    const res = await fetch('https://nt-clothing.onrender.com/AnhSanPham', {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}` },
                         body: formData
@@ -1375,7 +1375,7 @@
         async function deleteImage(imageId, productId, containerId) {
             if (!confirm('Bạn chắc chắn muốn xóa ảnh này?')) return;
             try {
-                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/${imageId}`, { method: 'DELETE' });
+                const res = await authFetch(`https://nt-clothing.onrender.com/AnhSanPham/${imageId}`, { method: 'DELETE' });
                 if (res.ok) {
                     loadProductImages(productId, containerId);
                 } else {
@@ -1389,14 +1389,14 @@
         async function editProduct(productId) {
             try {
                 // Lấy thông tin hiện tại của sp
-                const res = await authFetch(`https://localhost:7197/api/SanPham/${productId}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/SanPham/${productId}`);
                 if (!res.ok) throw new Error('Không thể tải thông tin sản phẩm');
                 const sp = await res.json();
 
                 // Lấy danh mục và thương hiệu
-                const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+                const categoriesRes = await authFetch('https://nt-clothing.onrender.com/LoaiSP');
                 const categories = await categoriesRes.json();
-                const brandsRes = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const brandsRes = await authFetch('https://nt-clothing.onrender.com/ThuongHieu');
                 const brands = await brandsRes.json();
 
                 // Nếu đã có modal edit thì xoá đi
@@ -1551,7 +1551,7 @@
             if (!data.loaiId || !data.thuongHieuId) return alert('Vui lòng chọn Loại và Thương hiệu!');
 
             try {
-                const res = await authFetch(`https://localhost:7197/api/SanPham/${productId}`, {
+                const res = await authFetch(`https://nt-clothing.onrender.com/SanPham/${productId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1572,20 +1572,20 @@
 
         function deleteProduct(productId) {
             if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
-            authFetch(`https://localhost:7197/api/SanPham/${productId}`, { method: 'DELETE' })
+            authFetch(`https://nt-clothing.onrender.com/SanPham/${productId}`, { method: 'DELETE' })
                 .then(res => res.ok ? (alert('Xóa thành công'), loadProducts()) : alert('Xóa thất bại'))
                 .catch(err => console.error('Lỗi:', err));
         }
 
         async function openAddProductModal() {
             try {
-                const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+                const categoriesRes = await authFetch('https://nt-clothing.onrender.com/LoaiSP');
                 const categories = await categoriesRes.json();
-                const brandsRes = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const brandsRes = await authFetch('https://nt-clothing.onrender.com/ThuongHieu');
                 const brands = await brandsRes.json();
-                const sizesRes = await authFetch('https://localhost:7197/api/Size');
+                const sizesRes = await authFetch('https://nt-clothing.onrender.com/Size');
                 masterSizes = await sizesRes.json();
-                const colorsRes = await authFetch('https://localhost:7197/api/MauSac');
+                const colorsRes = await authFetch('https://nt-clothing.onrender.com/MauSac');
                 masterColors = await colorsRes.json();
 
                 const oldModal = document.getElementById('addProductModal');
@@ -1777,7 +1777,7 @@
                 btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
 
                 // 1. Tạo Sản Phẩm
-                const res = await authFetch('https://localhost:7197/api/SanPham', {
+                const res = await authFetch('https://nt-clothing.onrender.com/SanPham', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(productData)
@@ -1795,7 +1795,7 @@
                             imgFormData.append('file', file);
                             imgFormData.append('sanPhamId', newId);
 
-                            await fetch('https://localhost:7197/api/AnhSanPham', {
+                            await fetch('https://nt-clothing.onrender.com/AnhSanPham', {
                                 method: 'POST',
                                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                                 body: imgFormData
@@ -1815,7 +1815,7 @@
                             sizeId: sizeId,
                             soLuongTon: soLuong
                         };
-                        await authFetch('https://localhost:7197/api/SanPhamBienThe', {
+                        await authFetch('https://nt-clothing.onrender.com/SanPhamBienThe', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(variantData)
@@ -1878,7 +1878,7 @@
             };
 
             try {
-                const res = await authFetch('https://localhost:7197/api/LoaiSP', {
+                const res = await authFetch('https://nt-clothing.onrender.com/LoaiSP', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1898,7 +1898,7 @@
         async function deleteCategory(categoryId) {
             if (!confirm('Bạn chắc chắn muốn xóa danh mục này?')) return;
             try {
-                const res = await authFetch(`https://localhost:7197/api/LoaiSP/${categoryId}`, { method: 'DELETE' });
+                const res = await authFetch(`https://nt-clothing.onrender.com/LoaiSP/${categoryId}`, { method: 'DELETE' });
                 if (res.ok) {
                     alert('Xóa danh mục thành công');
                     loadCategories();
@@ -1953,7 +1953,7 @@
             };
 
             try {
-                const res = await authFetch('https://localhost:7197/api/ThuongHieu', {
+                const res = await authFetch('https://nt-clothing.onrender.com/ThuongHieu', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -1974,7 +1974,7 @@
             // loadUsers duplicate removed. The main definition is now in the User Management section.
             if (!confirm('Bạn chắc chắn muốn xóa thương hiệu này?')) return;
             try {
-                const res = await authFetch(`https://localhost:7197/api/ThuongHieu/${brandId}`, { method: 'DELETE' });
+                const res = await authFetch(`https://nt-clothing.onrender.com/ThuongHieu/${brandId}`, { method: 'DELETE' });
                 if (res.ok) {
                     alert('Xóa thương hiệu thành công');
                     loadBrands();
@@ -1990,7 +1990,7 @@
            ========================================================================== */
         async function loadColors() {
             try {
-                const res = await authFetch('https://localhost:7197/api/MauSac');
+                const res = await authFetch('https://nt-clothing.onrender.com/MauSac');
                 const data = await res.json();
                 masterColors = data; // Cập nhật dữ liệu màu toàn cục
                 document.getElementById('colors-table-body').innerHTML = data.map(c => {
@@ -2015,7 +2015,7 @@
         }
 
         async function openAddColorModal(linkedLoaiId = null) {
-            const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+            const categoriesRes = await authFetch('https://nt-clothing.onrender.com/LoaiSP');
             const categories = await categoriesRes.json();
             const old = document.getElementById('addColorModal'); if (old) old.remove();
 
@@ -2053,7 +2053,7 @@
             if (data.tenMau.length < 2) return alert('Tên màu ít nhất 2 ký tự!');
             if (!data.maMau.startsWith('#') || data.maMau.length < 4) return alert('Mã màu không hợp lệ!');
             try {
-                const res = await authFetch('https://localhost:7197/api/MauSac', {
+                const res = await authFetch('https://nt-clothing.onrender.com/MauSac', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -2061,7 +2061,7 @@
                 if (res.ok) {
                     alert('Đã thêm màu!'); bootstrap.Modal.getInstance(document.getElementById('addColorModal')).hide();
                     if (document.getElementById('addProductModal')) {
-                        const r = await authFetch('https://localhost:7197/api/MauSac'); masterColors = await r.json();
+                        const r = await authFetch('https://nt-clothing.onrender.com/MauSac'); masterColors = await r.json();
                         filterColorsAndSizes(document.getElementById('addProduct-loaiId').value);
                     }
                     loadColors();
@@ -2070,12 +2070,12 @@
         }
 
         async function deleteColor(id) {
-            if (confirm('Xóa màu này?')) authFetch(`https://localhost:7197/api/MauSac/${id}`, { method: 'DELETE' }).then(() => loadColors());
+            if (confirm('Xóa màu này?')) authFetch(`https://nt-clothing.onrender.com/MauSac/${id}`, { method: 'DELETE' }).then(() => loadColors());
         }
 
         async function loadSizes() {
             try {
-                const res = await authFetch('https://localhost:7197/api/Size');
+                const res = await authFetch('https://nt-clothing.onrender.com/Size');
                 const data = await res.json();
                 document.getElementById('sizes-table-body').innerHTML = data.map(s => `
                     <tr>
@@ -2086,7 +2086,7 @@
         }
 
         async function openAddSizeModal(linkedLoaiId = null) {
-            const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+            const categoriesRes = await authFetch('https://nt-clothing.onrender.com/LoaiSP');
             const categories = await categoriesRes.json();
             const old = document.getElementById('addSizeModal'); if (old) old.remove();
 
@@ -2121,7 +2121,7 @@
             };
             if (!data.tenSize) return alert('Tên kích cỡ không được trống!');
             try {
-                const res = await authFetch('https://localhost:7197/api/Size', {
+                const res = await authFetch('https://nt-clothing.onrender.com/Size', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -2129,7 +2129,7 @@
                 if (res.ok) {
                     alert('Đã thêm size!'); bootstrap.Modal.getInstance(document.getElementById('addSizeModal')).hide();
                     if (document.getElementById('addProductModal')) {
-                        const r = await authFetch('https://localhost:7197/api/Size'); masterSizes = await r.json();
+                        const r = await authFetch('https://nt-clothing.onrender.com/Size'); masterSizes = await r.json();
                         filterColorsAndSizes(document.getElementById('addProduct-loaiId').value);
                     }
                     loadSizes();
@@ -2138,7 +2138,7 @@
         }
 
         async function deleteSize(id) {
-            if (confirm('Xóa kích cỡ này?')) authFetch(`https://localhost:7197/api/Size/${id}`, { method: 'DELETE' }).then(() => loadSizes());
+            if (confirm('Xóa kích cỡ này?')) authFetch(`https://nt-clothing.onrender.com/Size/${id}`, { method: 'DELETE' }).then(() => loadSizes());
         }
 
         /* ==========================================================================
@@ -2147,14 +2147,14 @@
         let rolesList = [];
         async function loadRoles() {
             try {
-                const res = await authFetch('https://localhost:7197/api/PhanQuyen');
+                const res = await authFetch('https://nt-clothing.onrender.com/PhanQuyen');
                 if (res.ok) rolesList = await res.json();
             } catch (err) { console.error(err); }
         }
 
         async function loadUsers() {
             try {
-                const res = await authFetch('https://localhost:7197/api/User/all');
+                const res = await authFetch('https://nt-clothing.onrender.com/User/all');
                 const users = await res.json();
                 const tbody = document.getElementById('users-table-body');
                 tbody.innerHTML = users.map(u => {
@@ -2175,7 +2175,7 @@
         async function changeUserRole(userId, roleId) {
             if (!confirm('Đổi quyền người dùng này?')) return loadUsers();
             try {
-                const res = await authFetch(`https://localhost:7197/api/User/cap-quyen/${userId}`, {
+                const res = await authFetch(`https://nt-clothing.onrender.com/User/cap-quyen/${userId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phanQuyenId: parseInt(roleId) })
@@ -2185,7 +2185,7 @@
         }
 
         async function deleteUser(id) {
-            if (confirm('Xóa người dùng này?')) authFetch(`https://localhost:7197/api/User/${id}`, { method: 'DELETE' }).then(() => loadUsers());
+            if (confirm('Xóa người dùng này?')) authFetch(`https://nt-clothing.onrender.com/User/${id}`, { method: 'DELETE' }).then(() => loadUsers());
         }
 
         async function openAddUserModal() {
@@ -2235,7 +2235,7 @@
             if (data.hoVaTen.length < 2) return alert('Họ tên ít nhất 2 ký tự!');
 
             try {
-                const res = await authFetch('https://localhost:7197/api/Auth/register', {
+                const res = await authFetch('https://nt-clothing.onrender.com/Auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -2283,7 +2283,7 @@
 
         async function loadProductImages(pid) {
             try {
-                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/sanpham/${pid}`);
+                const res = await authFetch(`https://nt-clothing.onrender.com/AnhSanPham/sanpham/${pid}`);
                 const data = await res.json();
                 const list = document.getElementById('imgList'); if (!list) return;
                 list.innerHTML = data.map(img => `
@@ -2301,13 +2301,13 @@
             if (!files.length) return alert('Chọn ảnh!');
             for (let f of files) {
                 const fd = new FormData(); fd.append('file', f); fd.append('sanPhamId', pid);
-                await fetch('https://localhost:7197/api/AnhSanPham', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: fd });
+                await fetch('https://nt-clothing.onrender.com/AnhSanPham', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: fd });
             }
             alert('Đã tải xong!'); loadProductImages(pid);
         }
 
         async function deleteImage(id, pid) {
-            if (confirm('Xóa ảnh này?')) authFetch(`https://localhost:7197/api/AnhSanPham/${id}`, { method: 'DELETE' }).then(() => loadProductImages(pid));
+            if (confirm('Xóa ảnh này?')) authFetch(`https://nt-clothing.onrender.com/AnhSanPham/${id}`, { method: 'DELETE' }).then(() => loadProductImages(pid));
         }
 
         // Tự động khởi chạy
@@ -2316,8 +2316,8 @@
         // Tải dữ liệu Master ngay để các trang khác sử dụng (như variant display)
         Promise.all([
             loadRoles(),
-            authFetch('https://localhost:7197/api/MauSac').then(r => r.json()).then(d => masterColors = d),
-            authFetch('https://localhost:7197/api/Size').then(r => r.json()).then(d => masterSizes = d)
+            authFetch('https://nt-clothing.onrender.com/MauSac').then(r => r.json()).then(d => masterColors = d),
+            authFetch('https://nt-clothing.onrender.com/Size').then(r => r.json()).then(d => masterSizes = d)
         ]).then(() => {
             loadStats();
         });

@@ -33,7 +33,7 @@
 
             if (token) {
                 try {
-                    const res = await fetch(`https://localhost:7197/api/GioHang`, {
+                    const res = await fetch(`https://nt-clothing.onrender.com/GioHang`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (res.ok) {
@@ -56,7 +56,7 @@
                 if (localCart && localCart.length > 0) {
                     const detailItems = await Promise.all(localCart.map(async item => {
                         try {
-                            const res = await authFetch(`https://localhost:7197/api/SanPham/chitiet/${item.id}`);
+                            const res = await authFetch(`https://nt-clothing.onrender.com/SanPham/chitiet/${item.id}`);
                             if (!res.ok) return null;
                             const p = await res.json();
                             return { 
@@ -205,7 +205,7 @@
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const res = await fetch(`https://localhost:7197/api/GioHang/${id}`, {
+                    const res = await fetch(`https://nt-clothing.onrender.com/GioHang/${id}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -269,7 +269,7 @@
             if (checkoutData.diaChiGiaoHang.length < 5) return alert('Địa chỉ giao hàng quá ngắn!');
 
             try {
-                const res = await authFetch('https://localhost:7197/api/HoaDon/checkout', {
+                const res = await authFetch('https://nt-clothing.onrender.com/HoaDon/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(checkoutData)
@@ -278,11 +278,11 @@
                 if (res.ok) {
                     if (method === 'VNPAY') {
                         alert('Đang chuyển hướng sang VNPAY...');
-                        const historyRes = await authFetch('https://localhost:7197/api/HoaDon/lich-su');
+                        const historyRes = await authFetch('https://nt-clothing.onrender.com/HoaDon/lich-su');
                         const history = await historyRes.json();
                         const latestOrder = history[0]; 
                         
-                        const vnpayRes = await authFetch(`https://localhost:7197/api/Payment/create-vnpay-url/${latestOrder.id}`);
+                        const vnpayRes = await authFetch(`https://nt-clothing.onrender.com/Payment/create-vnpay-url/${latestOrder.id}`);
                         const vnpayData = await vnpayRes.json();
                         window.location.href = vnpayData.url;
                     } else {
