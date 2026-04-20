@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Quản Trị - NT Clothing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-sidebar {
+            background: #1a252f;
+            min-height: 100vh;
+            padding: 20px;
+            position: fixed;
+            width: 250px;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .admin-sidebar .nav-link {
+            color: #aab2bd;
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .admin-sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .admin-sidebar .nav-link.active {
+            background: #3498db;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        .admin-content {
+            margin-left: 250px;
+            padding: 30px;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
+            color: #fff;
+            padding: 24px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .admin-card {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .stat-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card h6 {
+            color: #2c3e50;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        /* --- Expandable Row Styling --- */
+        .variant-row {
+            background-color: #f8f9fa;
+        }
+        .variant-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .expand-toggle {
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        .expand-toggle.active {
+            transform: rotate(90deg);
+        }
+        .variant-details {
+            padding: 15px 30px;
+        }
+        .badge-variant {
+            font-size: 0.9rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .stat-card .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* --- Standardized Order Status Badges --- */
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            min-width: 100px;
+            display: inline-block;
+            text-align: center;
+            color: #fff !important;
+        }
+        .status-pending { background-color: #6366f1 !important; } /* Purple */
+        .status-approved { background-color: #10b981 !important; } /* Green */
+        .status-shipping { background-color: #f59e0b !important; } /* Orange */
+        .status-delivered { background-color: #06b6d4 !important; } /* Cyan */
+        .status-canceled { background-color: #ef4444 !important; } /* Red */
+
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Sidebar Quản Lý -->
+    <nav class="admin-sidebar">
+        <div class="mb-4">
+            <h5 class="text-white fw-bold">NT ADMIN</h5>
+            <small class="text-muted">Quản Lý Hệ Thống</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-page="dashboard">
+                    <i class="bi bi-house-fill me-2"></i>BDashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="products">
+                    <i class="bi bi-bag-fill me-2"></i>Quản Lý Sản Phẩm
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="users">
+                    <i class="bi bi-people-fill me-2"></i>Quản Lý Người Dùng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="orders">
+                    <i class="bi bi-receipt-fill me-2"></i>Quản Lý Đơn Hàng
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="categories">
+                    <i class="bi bi-bookmark-fill me-2"></i>Quản Lý Danh Mục
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="brands">
+                    <i class="bi bi-tag-fill me-2"></i>Quản Lý Thương Hiệu
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="reports">
+                    <i class="bi bi-graph-up-arrow me-2"></i>Báo Cáo
+                </a>
+            </li>
+            <li class="nav-item border-top mt-3 pt-3">
+                <a class="nav-link text-danger" href="#" id="btn-logout">
+                    <i class="bi bi-box-arrow-right me-2"></i>Đăng Xuất
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Nội Dung Chính -->
+    <div class="admin-content">
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h3 class="m-0">Trang Quản Trị</h3>
+                <small>Quản lý toàn bộ hệ thống</small>
+            </div>
+            <div class="text-end">
+                <span id="admin-username" class="me-3">Admin</span>
+                <a href="index.html" class="btn btn-sm btn-light">
+                    <i class="bi bi-house"></i> Về Trang Chủ
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="page-dashboard" class="page-content">
+            <h4 class="mb-4">Dashboard</h4>
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card h-100" data-page="products">
+                        <h5>Tổng Sản Phẩm</h5>
+                        <div class="stat-number" id="stat-products">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card h-100" data-page="users">
+                        <h5>Tổng Người Dùng</h5>
+                        <div class="stat-number" id="stat-users">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card h-100" data-page="orders">
+                        <h5>Tổng Đơn Hàng</h5>
+                        <div class="stat-number" id="stat-orders">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card h-100" data-page="reports">
+                        <h5>Doanh Thu Tháng</h5>
+                        <div class="stat-number" id="stat-revenue" style="font-size: 20px;">0 ₫</div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-card">
+                <h5>Thông Tin Chung</h5>
+                <p>Chào mừng đến Trang Quản Trị NT Clothing. Tại đây bạn có thể quản lý toàn bộ sản phẩm, người dùng, đơn hàng và các thông tin khác của hệ thống.</p>
+            </div>
+        </div>
+
+        <div id="page-products" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Sản Phẩm</h4>
+            <div class="mb-4 d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" onclick="openAddProductModal()">
+                    <i class="bi bi-plus-lg"></i> Thêm Sản Phẩm
+                </button>
+                <button class="btn btn-outline-info" onclick="showPage('colors')">
+                    <i class="bi bi-palette-fill"></i> Quản Lý Màu Sắc
+                </button>
+                <button class="btn btn-outline-secondary" onclick="showPage('sizes')">
+                    <i class="bi bi-rulers"></i> Quản Lý Kích Cỡ
+                </button>
+            </div>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Sản Phẩm</th>
+                            <th>Giá</th>
+                            <th>Số Lượng</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quản Lý Người Dùng -->
+        <div id="page-users" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Người Dùng</h4>
+            <button class="btn btn-primary mb-3" id="btn-add-user">
+                <i class="bi bi-plus-lg"></i> Thêm Người Dùng
+            </button>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Người Dùng</th>
+                            <th>Email</th>
+                            <th>Quyền Hiện Tại</th>
+                            <th>Điều Chỉnh Vai Trò</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="page-orders" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Đơn Hàng</h4>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-search"></i></span>
+                        <input type="number" id="filter-order-userid" class="form-control" placeholder="Lọc theo ID Khách hàng...">
+                        <button class="btn btn-dark" onclick="loadOrders()">Tìm kiếm</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary" onclick="document.getElementById('filter-order-userid').value=''; loadOrders()">Xóa lọc</button>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Khách Hàng</th>
+                            <th>SĐT Nhận</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái</th>
+                            <th>Ngày Đặt</th>
+                            <th class="text-center">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quản Lý Danh Mục -->
+        <div id="page-categories" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Danh Mục</h4>
+            <button class="btn btn-primary mb-3" onclick="openAddCategoryModal()">
+                <i class="bi bi-plus-lg"></i> Thêm Danh Mục
+            </button>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Danh Mục</th>
+                            <th>Mô Tả</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categories-table-body">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quản Lý Thương Hiệu -->
+        <div id="page-brands" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Thương Hiệu</h4>
+            <button class="btn btn-primary mb-3" onclick="openAddBrandModal()">
+                <i class="bi bi-plus-lg"></i> Thêm Thương Hiệu
+            </button>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Thương Hiệu</th>
+                            <th>Mô Tả</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brands-table-body">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Quản Lý Màu Sắc -->
+        <div id="page-colors" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Màu Sắc</h4>
+            <div class="mb-4 d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" onclick="openAddColorModal()">
+                    <i class="bi bi-plus-lg"></i> Thêm Màu Sắc
+                </button>
+                <button class="btn btn-outline-secondary" onclick="showPage('sizes')">
+                    <i class="bi bi-rulers"></i> Quản Lý Kích Cỡ
+                </button>
+            </div>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Màu</th>
+                            <th>Mã Màu (HEX)</th>
+                            <th>ID Loại SP</th>
+                            <th>Xem Trước</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="colors-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Quản Lý Kích Cỡ -->
+        <div id="page-sizes" class="page-content" style="display: none;">
+            <h4 class="mb-4">Quản Lý Kích Cỡ</h4>
+            <div class="mb-4 d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" onclick="openAddSizeModal()">
+                    <i class="bi bi-plus-lg"></i> Thêm Kích Cỡ
+                </button>
+                <button class="btn btn-outline-info" onclick="showPage('colors')">
+                    <i class="bi bi-palette-fill"></i> Quản Lý Màu Sắc
+                </button>
+            </div>
+            <div class="admin-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Size</th>
+                            <th>ID Loại SP</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sizes-table-body">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Báo Cáo -->
+        <div id="page-reports" class="page-content" style="display: none;">
+            <h4 class="mb-4">Báo Cáo Thống Kê</h4>
+            
+            <div class="row g-3">
+                <div class="col-md-3"><div class="admin-card p-3"><div class="text-muted">Tổng đơn hàng</div><div id="totalOrders" class="h3 fw-bold">-</div></div></div>
+                <div class="col-md-3">
+                    <div class="admin-card p-3 border-start border-5" style="border-left-color: #6366f1 !important;">
+                        <div class="text-muted">Đơn chờ duyệt</div>
+                        <div id="pendingOrders" class="h3 fw-bold text-indigo" style="color: #6366f1;">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3"><div class="admin-card p-3"><div class="text-muted">Tổng doanh thu</div><div id="totalRevenue" class="h3 fw-bold">-</div></div></div>
+                <div class="col-md-3"><div class="admin-card p-3"><div class="text-muted">Tổng người dùng</div><div id="totalUsers" class="h3 fw-bold">-</div></div></div>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-4"><div class="admin-card p-3"><div class="text-muted">Doanh thu hôm nay</div><div id="revenueToday" class="h3 fw-bold">-</div></div></div>
+                <div class="col-md-4"><div class="admin-card p-3"><div class="text-muted">Tháng này</div><div id="revenueMonth" class="h3 fw-bold">-</div></div></div>
+                <div class="col-md-4"><div class="admin-card p-3"><div class="text-muted">Năm nay</div><div id="revenueYear" class="h3 fw-bold">-</div></div></div>
+            </div>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-6">
+                    <div class="admin-card p-3">
+                        <h5>Phân bổ trạng thái đơn</h5>
+                        <div style="height: 350px; position: relative;">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="admin-card p-3">
+                        <h5>Doanh thu theo tháng</h5>
+                        <div style="height: 350px; position: relative;">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card p-3 mt-4">
+                <h5>Top 10 sản phẩm bán chạy</h5>
+                <div id="topProductsList">
+                    <p class="text-muted text-center py-4">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /* ==========================================================================
+           1. CẤU HÌNH & KHỞI TẠO (STATE & INIT)
+           ========================================================================== */
+        let masterColors = [];
+        let masterSizes = [];
+        const charts = {};
+
+        // Công cụ gọi API có gắn Token
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+            }
+            return await fetch(url, options);
+        }
+
+        // Định dạng tiền tệ VNĐ
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+        }
+
+        // Kiểm tra quyền truy cập Admin/Nhanvien
+        function kiemTraQuyenAdmin() {
+            const token = localStorage.getItem('token');
+            if (!token) return (alert('Vui lòng đăng nhập!'), window.location.href = 'dang-nhap.html');
+
+            try {
+                // Giải mã JWT robust (hỗ trợ UTF-8/Tiếng Việt)
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const decoded = JSON.parse(jsonPayload);
+
+                const role = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+                window.currentUserRole = role; // Lưu trữ quyền để dùng cho phân quyền UI
+
+                const authorizedRoles = ['Admin1', 'Admin', 'Nhân viên', 'NhanVien', 'QuanLyHeThong'];
+                if (!authorizedRoles.includes(role)) {
+                    alert('Bạn không có quyền truy cập vùng này!');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                document.getElementById('admin-username').textContent = decoded.unique_name || 'Admin';
+
+                // Phân quyền UI (Ẩn Báo cáo & Người dùng cho Nhân viên)
+                if (role === 'Nhân viên' || role === 'NhanVien') {
+                    // Ẩn Menu ở Sidebar
+                    document.querySelectorAll('.admin-sidebar .nav-link[data-page="reports"], .admin-sidebar .nav-link[data-page="users"]').forEach(el => el.parentElement.remove());
+                    // Ẩn Card ở Dashboard
+                    document.querySelectorAll('.stat-card[data-page="reports"], .stat-card[data-page="users"]').forEach(el => el.parentElement.remove());
+                }
+            } catch (err) {
+                console.error('Token không hợp lệ:', err);
+                window.location.href = 'index.html';
+            }
+        }
+
+        /* ==========================================================================
+           2. ĐIỀU HƯỚNG & GIAO DIỆN (UI & NAVIGATION)
+           ========================================================================== */
+        function showPage(page) {
+            if (!page) return;
+
+            // Kiểm tra quyền truy cập trang Báo cáo & Người dùng
+            const isStaff = window.currentUserRole === 'Nhân viên' || window.currentUserRole === 'NhanVien';
+            if ((page === 'reports' || page === 'users') && isStaff) {
+                alert('Bạn không có quyền truy cập vào mục này!');
+                showPage('dashboard');
+                return;
+            }
+
+            // Chuyển đổi hiển thị các section
+            document.querySelectorAll('.page-content').forEach(el => el.style.display = 'none');
+            const pageEl = document.getElementById(`page-${page}`);
+            if (pageEl) pageEl.style.display = 'block';
+            
+            // Cập nhật trạng thái Sidebar
+            document.querySelectorAll('.admin-sidebar .nav-link').forEach(el => el.classList.remove('active'));
+            const sidebarLink = document.querySelector(`.admin-sidebar .nav-link[data-page="${page}"]`);
+            if (sidebarLink) sidebarLink.classList.add('active');
+
+            // Kích hoạt tải dữ liệu theo trang
+            const loadMap = {
+                'dashboard': loadStats,
+                'products': loadProducts,
+                'users': loadUsers,
+                'orders': loadOrders,
+                'categories': loadCategories,
+                'brands': loadBrands,
+                'colors': loadColors,
+                'sizes': loadSizes,
+                'reports': loadReports
+            };
+            if (loadMap[page]) loadMap[page]();
+        }
+
+        // Gán sự kiện cho Sidebar và Dashboard Cards
+        document.querySelectorAll('.admin-sidebar .nav-link, .stat-card[data-page]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const page = el.getAttribute('data-page');
+                if (page) {
+                    e.preventDefault();
+                    showPage(page);
+                }
+            });
+        });
+
+        // Xử lý Đăng xuất
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('btn-logout')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+
+        /* ==========================================================================
+           3. THỐNG KÊ & BÁO CÁO (STATS & REPORTS)
+           ========================================================================== */
+        async function loadStats() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThongKe/overview');
+                if (!res.ok) throw new Error('Failed to fetch stats');
+                const data = await res.json();
+
+                document.getElementById('stat-products').innerText = data.totalProducts ?? 0;
+                document.getElementById('stat-users').innerText = data.totalUsers ?? 0;
+                document.getElementById('stat-orders').innerText = data.totalOrders ?? 0;
+                document.getElementById('stat-revenue').innerText = formatCurrency(data.revenueThisMonth);
+            } catch (err) {
+                console.error('Lỗi load stats:', err);
+            }
+        }
+
+        async function loadReports() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThongKe/overview');
+                if (res.status === 401) return (alert('Phiên hết hạn!'), window.location.href = 'dang-nhap.html');
+                
+                const data = await res.json();
+                document.getElementById('totalOrders').textContent = data.totalOrders ?? 0;
+                document.getElementById('pendingOrders').textContent = data.pendingOrders ?? 0;
+                document.getElementById('totalRevenue').textContent = formatCurrency(data.totalRevenue);
+                document.getElementById('totalUsers').textContent = data.totalUsers ?? 0;
+                document.getElementById('revenueToday').textContent = formatCurrency(data.revenueToday);
+                document.getElementById('revenueMonth').textContent = formatCurrency(data.revenueThisMonth);
+                document.getElementById('revenueYear').textContent = formatCurrency(data.revenueThisYear);
+
+                loadCharts();
+                loadTopProducts();
+            } catch (err) {
+                console.error("Lỗi load báo cáo:", err);
+            }
+        }
+
+        async function loadCharts() {
+            try {
+                // Biểu đồ trạng thái đơn hàng
+                const r1 = await authFetch('https://localhost:7197/api/ThongKe/order-status-distribution');
+                const data1 = await r1.json();
+                const ctx1 = document.getElementById('statusChart');
+                if (charts.status) charts.status.destroy();
+                charts.status = new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: { 
+                        labels: Object.keys(data1), 
+                        datasets: [{ 
+                            data: Object.values(data1), 
+                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#8b5cf6'] 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { position: 'bottom' } 
+                        } 
+                    }
+                });
+
+                // Biểu đồ doanh thu theo tháng
+                const r2 = await authFetch('https://localhost:7197/api/ThongKe/monthly-sales');
+                const data2 = await r2.json();
+                const ctx2 = document.getElementById('monthlyChart');
+                if (charts.monthly) charts.monthly.destroy();
+                charts.monthly = new Chart(ctx2, {
+                    type: 'line',
+                    data: { 
+                        labels: Object.keys(data2), 
+                        datasets: [{ 
+                            label: 'Doanh thu', 
+                            data: Object.values(data2), 
+                            borderColor: '#6366f1', 
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)', 
+                            tension: 0.4, 
+                            fill: true 
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true } } 
+                    }
+                });
+            } catch (err) {
+                console.error("Lỗi load biểu đồ:", err);
+            }
+        }
+
+        async function loadTopProducts() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThongKe/top-selling-products?topN=10');
+                const data = await res.json();
+                
+                let html = `<div class="table-responsive"><table class="table table-hover">
+                    <thead><tr><th>#</th><th>Sản phẩm</th><th>Số lượng</th><th>Doanh số</th></tr></thead><tbody>`;
+                data.forEach((p, i) => {
+                    html += `<tr><td>${i+1}</td><td>${p.tenSanPham}</td><td>${p.soLuongBan}</td><td>${formatCurrency(p.doanhSo)}</td></tr>`;
+                });
+                html += '</tbody></table></div>';
+                document.getElementById('topProductsList').innerHTML = html;
+            } catch (err) {
+                console.error("Lỗi load top sản phẩm:", err);
+            }
+        }
+
+        /* ==========================================================================
+           4. QUẢN LÝ SẢN PHẨM (PRODUCT MANAGEMENT)
+           ========================================================================== */
+        async function loadProducts() {
+            const tbody = document.getElementById('products-table-body');
+            try {
+                const res = await authFetch('https://localhost:7197/api/SanPham');
+                if (!res.ok) throw new Error(res.status === 403 ? 'Không có quyền truy cập' : 'Lỗi máy chủ');
+                const data = await res.json();
+                
+                tbody.innerHTML = data.map(p => `
+                    <tr id="product-row-${p.id}">
+                        <td><i class="bi bi-chevron-right expand-toggle me-2" onclick="toggleProductVariants(${p.id}, this)"></i>${p.id}</td>
+                        <td>${p.ten || 'N/A'}</td>
+                        <td class="fw-bold">${(p.giaBan || 0).toLocaleString()}đ</td>
+                        <td><span class="badge bg-secondary">${p.soLuong || 0}</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-info" onclick="editProduct(${p.id})">Sửa</button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="manageImages(${p.id})">Ảnh</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})">Xóa</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Lỗi load sản phẩm:', err);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-2"></i>Lỗi tải sản phẩm: ${err.message}</td></tr>`;
+            }
+        }
+
+        // Đóng/Mở xem chi tiết Màu/Size sản phẩm
+        async function toggleProductVariants(productId, icon) {
+            const row = icon.closest('tr');
+            const nextRow = row.nextElementSibling;
+            
+            if (nextRow && nextRow.classList.contains('variant-row')) {
+                nextRow.remove();
+                icon.classList.remove('active', 'bi-chevron-down');
+                icon.classList.add('bi-chevron-right');
+            } else {
+                icon.classList.add('active', 'bi-chevron-down');
+                icon.classList.remove('bi-chevron-right');
+                const detailRow = document.createElement('tr');
+                detailRow.className = 'variant-row';
+                detailRow.innerHTML = `
+                    <td colspan="5">
+                        <div class="variant-details">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h6><i class="bi bi-box-seam me-2"></i>Chi tiết tồn kho</h6>
+                                <button class="btn btn-sm btn-primary" onclick="manageInventory(${productId})">Quản lý kho</button>
+                            </div>
+                            <div id="variant-list-${productId}" class="row g-2">Đang tải...</div>
+                        </div>
+                    </td>`;
+                row.after(detailRow);
+                loadProductVariants(productId);
+            }
+        }
+
+        async function loadProductVariants(productId) {
+            try {
+                // Đảm bảo có master data để fallback
+                if (masterColors.length === 0) {
+                    const cRes = await authFetch('https://localhost:7197/api/MauSac');
+                    masterColors = await cRes.json();
+                }
+
+                const res = await authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`);
+                const data = await res.json();
+                const list = document.getElementById(`variant-list-${productId}`);
+                if (!list) return;
+
+                if (!data.length) return list.innerHTML = '<div class="col-12 text-center text-muted">Chưa có phân loại.</div>';
+                list.innerHTML = data.map(v => {
+                    // Cố gắng lấy từ variant trước, nếu không có thì tìm trong masterColors
+                    const mColor = masterColors.find(c => c.id == v.mauId || c.id == v.MauId);
+                    const tenMau = v.tenMau || v.TenMau || (mColor ? (mColor.tenMau || mColor.TenMau) : (v.maMau || v.MaMau || 'N/A'));
+                    const maMau = v.maMau || v.MaMau || (mColor ? (mColor.maMau || mColor.MaMau) : '#eee');
+                    const tenSize = v.tenSize || v.TenSize || 'N/A';
+                    const colorBlock = `<span style="display:inline-block; width:15px; height:15px; background-color:${maMau}; border:1px solid #ddd; margin-right:8px; border-radius:50%; vertical-align:middle;"></span>`;
+                    
+                    return `
+                    <div class="col-md-4 col-lg-3">
+                        <div class="variant-card d-flex justify-content-between p-2 align-items-center" style="border-left: 4px solid ${maMau};">
+                            <span class="fs-13 fw-500">${colorBlock}<b>${tenMau}</b> / ${tenSize}</span>
+                            <span class="badge bg-info text-dark shadow-sm">${v.soLuongTon} cái</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (err) { 
+                console.error(err); 
+            }
+        }
+
+        async function manageInventory(productId) {
+            try {
+                // Đảm bảo masterColors/Sizes đã tải
+                if (masterColors.length === 0 || masterSizes.length === 0) {
+                    const [cRes, sRes, vRes] = await Promise.all([
+                        authFetch('https://localhost:7197/api/MauSac'),
+                        authFetch('https://localhost:7197/api/Size'),
+                        authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`)
+                    ]);
+                    masterColors = await cRes.json();
+                    masterSizes = await sRes.json();
+                    var variants = await vRes.json();
+                } else {
+                    const vRes = await authFetch(`https://localhost:7197/api/SanPhamBienThe/sanpham/${productId}`);
+                    var variants = await vRes.json();
+                }
+                
+                const oldModal = document.getElementById('manageInventoryModal');
+                if (oldModal) oldModal.remove();
+
+                const modalHTML = `
+                <div class="modal fade" id="manageInventoryModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content border-0 shadow-lg">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title font-weight-bold"><i class="bi bi-box-seam me-2"></i>Quản Lý Tồn Kho (ID SP: ${productId})</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Phân loại</th>
+                                                <th class="text-center">Tồn kho hiện tại</th>
+                                                <th style="width: 140px;">Sửa số lượng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventory-list-body">
+                                            ${variants.map(v => {
+                                                const mColor = masterColors.find(c => c.id == v.mauId || c.id == v.MauId);
+                                                const tenMau = v.tenMau || v.TenMau || (mColor ? (mColor.tenMau || mColor.TenMau) : (v.maMau || v.MaMau || 'N/A'));
+                                                const maMau = v.maMau || v.MaMau || (mColor ? (mColor.maMau || mColor.MaMau) : '#eee');
+                                                const tenSize = v.tenSize || v.TenSize || 'N/A';
+                                                return `
+                                                <tr data-id="${v.id}" data-mau="${v.mauId}" data-size="${v.sizeId}">
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <span style="width:16px; height:16px; background:${maMau}; border-radius:50%; display:inline-block; margin-right:12px; border:1px solid #ddd;"></span>
+                                                            <b class="fs-14">${tenMau}</b> <span class="mx-2 text-muted">/</span> ${tenSize}
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center fw-bold text-muted">${v.soLuongTon}</td>
+                                                    <td>
+                                                        <input type="number" class="form-control form-control-sm variant-stock-input text-center fw-bold" value="${v.soLuongTon}" min="0">
+                                                    </td>
+                                                </tr>`;
+                                            }).join('')}
+                                            ${variants.length === 0 ? '<tr><td colspan="3" class="text-center py-4 text-muted">Chưa có phân loại nào.</td></tr>' : ''}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="bg-light p-3 rounded">
+                                    <h6 class="mb-3"><i class="bi bi-plus-circle me-1"></i>Thêm phân loại mới</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <select class="form-select" id="new-var-mauId">
+                                                <option value="">-- Chọn Màu --</option>
+                                                ${masterColors.map(c => `<option value="${c.id}">${c.tenMau || c.TenMau || c.maMau || c.MaMau}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <select class="form-select" id="new-var-sizeId">
+                                                <option value="">-- Chọn Size --</option>
+                                                ${masterSizes.map(s => `<option value="${s.id}">${s.tenSize}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="number" class="form-control" id="new-var-qty" placeholder="Số lượng" value="0">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button class="btn btn-success w-100" onclick="addNewVariant(${productId})"><i class="bi bi-plus-lg"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary px-4" onclick="updateBatchInventory(${productId})">Lưu Thay Đổi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                const modal = new bootstrap.Modal(document.getElementById('manageInventoryModal'));
+                modal.show();
+            } catch (err) { console.error(err); alert('Lỗi tải dữ liệu kho'); }
+        }
+
+        async function addNewVariant(productId) {
+            const mauId = document.getElementById('new-var-mauId').value;
+            const sizeId = document.getElementById('new-var-sizeId').value;
+            const qty = document.getElementById('new-var-qty').value;
+
+            if (!mauId || !sizeId) return alert('Vui lòng chọn Màu và Size');
+
+            const dto = { sanPhamId: productId, mauId: parseInt(mauId), sizeId: parseInt(sizeId), soLuongTon: parseInt(qty) || 0 };
+            try {
+                const res = await authFetch('https://localhost:7197/api/SanPhamBienThe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dto)
+                });
+                if (res.ok) {
+                    manageInventory(productId);
+                    loadProductVariants(productId);
+                    loadProducts();
+                } else alert('Lỗi: Biến thể có thể đã tồn tại.');
+            } catch (err) { console.error(err); }
+        }
+
+        async function updateBatchInventory(productId) {
+            const rows = document.querySelectorAll('#inventory-list-body tr[data-id]');
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang lưu...';
+
+            let failCount = 0;
+            for (let row of rows) {
+                const id = row.getAttribute('data-id');
+                const mauId = row.getAttribute('data-mau');
+                const sizeId = row.getAttribute('data-size');
+                const qty = row.querySelector('.variant-stock-input').value;
+
+                const dto = { sanPhamId: productId, mauId: parseInt(mauId), sizeId: parseInt(sizeId), soLuongTon: parseInt(qty) };
+                try {
+                    const res = await authFetch(`https://localhost:7197/api/SanPhamBienThe/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dto)
+                    });
+                    if (!res.ok) failCount++;
+                } catch (e) { failCount++; }
+            }
+
+            btn.disabled = false;
+            btn.innerText = 'Lưu Thay Đổi';
+
+            if (failCount === 0) {
+                alert('Cập nhật tồn kho thành công!');
+                bootstrap.Modal.getInstance(document.getElementById('manageInventoryModal')).hide();
+                loadProductVariants(productId);
+                loadProducts();
+            } else {
+                alert(`Cập nhật hoàn tất nhưng có ${failCount} dòng lỗi.`);
+            }
+        }
+
+        // Xóa sản phẩm
+        function deleteProduct(productId) {
+            if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
+            authFetch(`https://localhost:7197/api/SanPham/${productId}`, { method: 'DELETE' })
+                .then(res => res.ok ? (alert('Đã xóa!'), loadProducts()) : alert('Lỗi xóa sp'))
+                .catch(err => console.error(err));
+        }
+
+        /* ==========================================================================
+           5. QUẢN LÝ ĐƠN HÀNG (ORDER MANAGEMENT)
+           ========================================================================== */
+        async function loadOrders() {
+            const tbody = document.getElementById('orders-table-body');
+            const filterUserId = document.getElementById('filter-order-userid').value;
+            try {
+                const res = await authFetch('https://localhost:7197/api/HoaDon/all');
+                if (!res.ok) throw new Error(res.status === 403 ? 'Bạn không có quyền xem đơn hàng' : 'Lỗi tải dữ liệu');
+                let data = await res.json();
+                if (filterUserId) data = data.filter(o => o.userId == filterUserId);
+
+                const tbody = document.getElementById('orders-table-body');
+                tbody.innerHTML = data.map(o => {
+                    let statusBadge = '';
+                    let actions = `<button class="btn btn-sm btn-outline-secondary me-1" onclick="viewOrderDetails(${o.id})"><i class="bi bi-eye"></i></button>`;
+
+                    switch (o.trangThai) {
+                        case 0: statusBadge = '<span class="badge-status status-pending">Chờ duyệt</span>';
+                               actions += `<button class="btn btn-sm btn-success me-1" onclick="updateOrderStatus(${o.id}, 'approve')">Duyệt</button>
+                                          <button class="btn btn-sm btn-danger" onclick="updateOrderStatus(${o.id}, 'reject')">Hủy</button>`; break;
+                        case 1: statusBadge = '<span class="badge-status status-approved">Đã duyệt</span>';
+                               actions += `<button class="btn btn-sm btn-primary" onclick="updateOrderStatus(${o.id}, 'shipped')">Giao hàng</button>`; break;
+                        case 2: statusBadge = '<span class="badge-status status-shipping">Đang giao</span>';
+                               actions += `<button class="btn btn-sm btn-success" onclick="updateOrderStatus(${o.id}, 'delivered')">Hoàn tất</button>`; break;
+                        case 3: statusBadge = '<span class="badge-status status-delivered">Thành công</span>'; break;
+                        case 4: statusBadge = '<span class="badge-status status-canceled">Đã hủy</span>'; break;
+                    }
+
+                    return `<tr>
+                        <td>#${o.id}</td>
+                        <td class="fw-bold">${o.tenNguoiNhan || '---'}</td>
+                        <td>${o.sdtNhanHang || '---'}</td>
+                        <td class="text-primary fw-bold">${formatCurrency(o.tongTien)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${o.ngayTao ? new Date(o.ngayTao).toLocaleDateString('vi-VN') : '-'}</td>
+                        <td class="text-center">${actions}</td>
+                    </tr>`;
+                }).join('');
+            } catch (err) { 
+                console.error(err); 
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-2"></i>Lỗi tải đơn hàng: ${err.message}</td></tr>`;
+            }
+        }
+
+        async function updateOrderStatus(id, action) {
+            if (!confirm('Xác nhận cập nhật trạng thái đơn hàng này?')) return;
+            try {
+                const res = await authFetch(`https://localhost:7197/api/HoaDon/${id}/${action}`, { method: 'PUT' });
+                if (res.ok) {
+                    alert('Đã cập nhật!');
+                    loadOrders();
+                    loadStats();
+                } else alert('Cập nhật thất bại!');
+            } catch (err) { console.error(err); }
+        }
+
+        async function viewOrderDetails(orderId) {
+            try {
+                const res = await authFetch(`https://localhost:7197/api/HoaDon/${orderId}`);
+                const order = await res.json();
+                
+                const oldModal = document.getElementById('orderDetailModal');
+                if (oldModal) oldModal.remove();
+
+                const modalHTML = `
+                <div class="modal fade" id="orderDetailModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content border-0 shadow-lg">
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title fw-bold">Chi Tiết Đơn Hàng #${order.id}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="row mb-4">
+                                    <div class="col-md-6 border-end">
+                                        <h6 class="fw-bold text-uppercase fs-12 text-secondary mb-2">Thông tin vận chuyển</h6>
+                                        <p class="mb-1 fs-14">Người nhận: <b>${order.tenNguoiNhan || '---'}</b></p>
+                                        <p class="mb-1 fs-14">SĐT: <b>${order.sdtNhanHang || '---'}</b></p>
+                                        <p class="fs-13 text-muted mb-0">Địa chỉ: ${order.diaChiGiaoHang || 'Không rõ'}</p>
+                                    </div>
+                                    <div class="col-md-6 text-md-end">
+                                        <h6 class="fw-bold text-uppercase fs-12 text-secondary mb-2">Trạng thái & Thanh toán</h6>
+                                        <p class="mb-1 fs-14">Ngày đặt: ${new Date(order.ngayTao).toLocaleString('vi-VN')}</p>
+                                        <p class="mb-1 fs-14 text-primary fw-bold">Tổng cộng: ${formatCurrency(order.tongTien)}</p>
+                                        <p class="mb-0 fs-13 text-muted">Phương thức: ${order.phuongThucThanhToan || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered align-middle fs-13">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Sản phẩm</th>
+                                                <th class="text-center">Phân loại</th>
+                                                <th class="text-center">SL</th>
+                                                <th class="text-end">Đơn giá</th>
+                                                <th class="text-end">Thành tiền</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${(order.chiTiet || []).map(item => `
+                                                <tr>
+                                                    <td><div class="fw-bold">${item.tenSanPham}</div></td>
+                                                    <td class="text-center"><span class="badge bg-light text-dark border">${item.tenMau} / ${item.tenSize}</span></td>
+                                                    <td class="text-center">${item.soluong}</td>
+                                                    <td class="text-end">${formatCurrency(item.giaBan)}</td>
+                                                    <td class="text-end fw-bold">${formatCurrency(item.thanhTien)}</td>
+                                                </tr>`).join('')}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="4" class="text-end fw-bold border-0">TỔNG CỘNG:</td>
+                                                <td class="text-end fw-bold text-danger fs-15 border-0">${formatCurrency(order.tongTien)}</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                (new bootstrap.Modal(document.getElementById('orderDetailModal'))).show();
+            } catch (err) { 
+                console.error(err);
+                alert('Lỗi tải chi tiết đơn hàng'); 
+            }
+        }
+
+
+        /* ==========================================================================
+           6. QUẢN LÝ DANH MỤC & THƯƠNG HIỆU (CATEGORIES & BRANDS)
+           ========================================================================== */
+        async function loadCategories() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/LoaiSP');
+                const data = await res.json();
+                document.getElementById('categories-table-body').innerHTML = data.map(c => `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.tenLSP || 'N/A'}</td>
+                        <td>${c.moTa || '---'}</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${c.id})">Xóa</button></td>
+                    </tr>`).join('');
+            } catch (err) { console.error('Lỗi load danh mục:', err); }
+        }
+
+        async function openAddCategoryModal() {
+            const modalHTML = `
+                <div class="modal fade" id="addCategoryModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Thêm Danh Mục Mới</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <form id="addCategoryForm">
+                                    <div class="mb-3"><label class="form-label">Tên Danh Mục *</label><input type="text" class="form-control" name="ten" required></div>
+                                    <div class="mb-3"><label class="form-label">Mô Tả</label><textarea class="form-control" name="moTa" rows="3"></textarea></div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button class="btn btn-primary" onclick="submitAddCategory()">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('addCategoryModal'))).show();
+        }
+
+        async function submitAddCategory() {
+            const form = document.getElementById('addCategoryForm');
+            const data = { 
+                tenLSP: form.querySelector('[name="ten"]').value.trim(), 
+                moTa: form.querySelector('[name="moTa"]').value.trim() 
+            };
+            if (data.tenLSP.length < 2) return alert('Tên danh mục ít nhất 2 ký tự!');
+            try {
+                const res = await authFetch('https://localhost:7197/api/LoaiSP', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Đã thêm danh mục!');
+                    bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+                    loadCategories();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Xóa danh mục này?')) return;
+            authFetch(`https://localhost:7197/api/LoaiSP/${id}`, { method: 'DELETE' }).then(res => res.ok && loadCategories());
+        }
+
+        async function loadBrands() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const data = await res.json();
+                document.getElementById('brands-table-body').innerHTML = data.map(b => `
+                    <tr>
+                        <td>${b.id}</td>
+                        <td>${b.tenTH || 'N/A'}</td>
+                        <td>${b.moTa || '---'}</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteBrand(${b.id})">Xóa</button></td>
+                    </tr>`).join('');
+            } catch (err) { console.error('Lỗi load thương hiệu:', err); }
+        }
+
+        async function openAddBrandModal() {
+            const modalHTML = `
+                <div class="modal fade" id="addBrandModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Thêm Thương Hiệu</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <form id="addBrandForm">
+                                    <div class="mb-3"><label class="form-label">Tên Thương Hiệu *</label><input type="text" class="form-control" name="ten" required></div>
+                                    <div class="mb-3"><label class="form-label">Mô Tả</label><textarea class="form-control" name="moTa" rows="3"></textarea></div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button class="btn btn-primary" onclick="submitAddBrand()">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('addBrandModal'))).show();
+        }
+
+        async function submitAddBrand() {
+            const form = document.getElementById('addBrandForm');
+            const data = { 
+                tenTH: form.querySelector('[name="ten"]').value.trim(), 
+                moTa: form.querySelector('[name="moTa"]').value.trim() 
+            };
+            if (data.tenTH.length < 2) return alert('Tên thương hiệu ít nhất 2 ký tự!');
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThuongHieu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Đã thêm thương hiệu!');
+                    bootstrap.Modal.getInstance(document.getElementById('addBrandModal')).hide();
+                    loadBrands();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function deleteBrand(id) {
+            if (!confirm('Xóa thương hiệu này?')) return;
+            authFetch(`https://localhost:7197/api/ThuongHieu/${id}`, { method: 'DELETE' }).then(res => res.ok && loadBrands());
+        }
+
+        // Hàm quản lý ảnh sản phẩm
+        async function manageImages(productId) {
+            const oldModal = document.getElementById('imageModal');
+            if (oldModal) oldModal.remove();
+
+            const modalHTML = `
+                <div class="modal fade" id="imageModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Quản Lý Ảnh Sản Phẩm (ID: ${productId})</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Upload Ảnh Mới</label>
+                                    <div class="input-group">
+                                        <input type="file" id="imageInputStandalone" class="form-control" accept="image/*" multiple>
+                                        <button class="btn btn-primary" onclick="uploadImages(${productId}, 'imageInputStandalone', 'imageListStandalone')">Upload</button>
+                                    </div>
+                                </div>
+                                <h6>Danh sách ảnh:</h6>
+                                <div id="imageListStandalone" class="row g-2">
+                                    <p class="text-muted">Đang tải...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+            
+            loadProductImages(productId, 'imageListStandalone');
+        }
+
+        async function loadProductImages(productId, containerId) {
+            try {
+                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/sanpham/${productId}`);
+                const data = await res.json();
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-muted text-center py-3">Chưa có ảnh nào cho sản phẩm này.</p></div>';
+                    return;
+                }
+                container.innerHTML = data.map(img => `
+                    <div class="col-md-4 col-6">
+                        <div class="card h-100">
+                            <img src="${img.tenAnhSP}" class="card-img-top" style="height: 120px; object-fit: cover;">
+                            <div class="card-body p-2 text-center">
+                                <button class="btn btn-sm btn-outline-danger w-100" onclick="deleteImage(${img.id}, ${productId}, '${containerId}')">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Lỗi load ảnh:', err);
+                const container = document.getElementById(containerId);
+                if (container) container.innerHTML = '<p class="text-danger">Lỗi tải danh sách ảnh</p>';
+            }
+        }
+
+        async function uploadImages(productId, inputId, containerId) {
+            const input = document.getElementById(inputId);
+            const files = input.files;
+            if (files.length === 0) {
+                alert('Vui lòng chọn ít nhất một ảnh');
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Đang upload...';
+
+            let count = 0;
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('sanPhamId', productId);
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await fetch('https://localhost:7197/api/AnhSanPham', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formData
+                    });
+                    if (res.ok) count++;
+                } catch (err) {
+                    console.error('Lỗi upload:', err);
+                }
+            }
+            
+            btn.disabled = false;
+            btn.innerText = originalText;
+            input.value = ''; // clear input
+            
+            if (count > 0) {
+                alert(`Đã upload thành công ${count} ảnh!`);
+                loadProductImages(productId, containerId);
+            } else {
+                alert('Upload thất bại. Vui lòng thử lại.');
+            }
+        }
+
+        async function deleteImage(imageId, productId, containerId) {
+            if (!confirm('Bạn chắc chắn muốn xóa ảnh này?')) return;
+            try {
+                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/${imageId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadProductImages(productId, containerId);
+                } else {
+                    alert('Không thể xóa ảnh lúc này.');
+                }
+            } catch (err) {
+                console.error('Lỗi xóa:', err);
+            }
+        }
+
+        async function editProduct(productId) {
+            try {
+                // Lấy thông tin hiện tại của sp
+                const res = await authFetch(`https://localhost:7197/api/SanPham/${productId}`);
+                if (!res.ok) throw new Error('Không thể tải thông tin sản phẩm');
+                const sp = await res.json();
+
+                // Lấy danh mục và thương hiệu
+                const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+                const categories = await categoriesRes.json();
+                const brandsRes = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const brands = await brandsRes.json();
+
+                // Nếu đã có modal edit thì xoá đi
+                const oldModal = document.getElementById('editProductModal');
+                if (oldModal) oldModal.remove();
+
+                const modalHTML = `
+                <div class="modal fade" id="editProductModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Sửa Sản Phẩm (ID: ${sp.id})</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editProductForm" onsubmit="event.preventDefault(); return false;">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên Sản Phẩm *</label>
+                                        <input type="text" class="form-control" name="ten" value="${sp.ten || ''}" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Danh Mục *</label>
+                                                <select class="form-select border-info" name="loaiId" id="editProduct-loaiId" required>
+                                                    <option value="">-- Chọn Danh Mục --</option>
+                                                    ${categories.map(c => `<option value="${c.id}" ${c.id == sp.loaiId ? 'selected' : ''}>${c.tenLSP || c.ten}</option>`).join('')}
+                                                </select>
+                                                <div class="form-text">Lưu ý: Đổi danh mục có thể ảnh hưởng đến phân loại Màu/Size.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Thương Hiệu *</label>
+                                                <select class="form-control" name="thuongHieuId" required>
+                                                    <option value="">-- Chọn Thương Hiệu --</option>
+                                                    ${brands.map(b => `<option value="${b.id}" ${b.id == sp.thuongHieuId ? 'selected' : ''}>${b.tenTH || b.ten}</option>`).join('')}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Giá Bán *</label>
+                                                <input type="number" class="form-control" name="giaBan" value="${sp.giaBan || 0}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Giá Nhập</label>
+                                                <input type="number" class="form-control" name="giaNhap" value="${sp.giaNhap || 0}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Khuyến Mãi</label>
+                                                <input type="number" class="form-control" name="khuyenMai" value="${sp.khuyenMai || 0}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label class="form-label">Giới Tính *</label>
+                                                <select class="form-control" name="gioiTinh" required>
+                                                    <option value="0" ${sp.gioiTinh == 0 ? 'selected' : ''}>Nam</option>
+                                                    <option value="1" ${sp.gioiTinh == 1 ? 'selected' : ''}>Nữ</option>
+                                                    <option value="2" ${sp.gioiTinh == 2 ? 'selected' : ''}>Unisex</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Trạng Thái (Mới, Hot...)</label>
+                                        <input type="text" class="form-control" name="trangThaiSanPham" value="${sp.trangThaiSanPham || ''}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mô Tả Sản Phẩm</label>
+                                        <textarea class="form-control" name="moTa" rows="2">${sp.moTa || ''}</textarea>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Hướng Dẫn Sử Dụng</label>
+                                                <textarea class="form-control" name="huongDan" rows="2">${sp.huongDan || ''}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Thành Phần</label>
+                                                <textarea class="form-control" name="thanhPhan" rows="2">${sp.thanhPhan || ''}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="trangThaiHoatDong" ${sp.trangThaiHoatDong !== false ? 'checked' : ''} id="chk-active-edit">
+                                        <label class="form-check-label" for="chk-active-edit">Đang hoạt động (Hiển thị lên Web)</label>
+                                    </div>
+                                    <hr>
+                                    <div class="mb-3">
+                                        <label class="form-label"><b>Quản Lý Ảnh Sản Phẩm</b></label>
+                                        <div class="input-group mb-2">
+                                            <input type="file" id="editImageInput" class="form-control" accept="image/*" multiple>
+                                            <button type="button" class="btn btn-outline-primary" onclick="uploadImages(${sp.id}, 'editImageInput', 'editImageList')">Upload</button>
+                                        </div>
+                                        <div id="editImageList" class="row g-2 mt-2" style="max-height: 300px; overflow-y: auto;">
+                                            <p class="text-muted">Đang tải ảnh...</p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="submitEditProduct(${productId})">Lưu Thay Đổi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
+                modal.show();
+
+                // Load ảnh ngay sau khi hiện modal
+                loadProductImages(productId, 'editImageList');
+            } catch (err) {
+                console.error(err);
+                alert('Không tải được thông tin sản phẩm');
+            }
+        }
+
+        async function submitEditProduct(productId) {
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            const data = {
+                ten: formData.get('ten').trim(),
+                giaBan: parseFloat(formData.get('giaBan')) || 0,
+                giaNhap: parseFloat(formData.get('giaNhap')) || 0,
+                khuyenMai: parseFloat(formData.get('khuyenMai')) || 0,
+                loaiId: parseInt(formData.get('loaiId')),
+                thuongHieuId: parseInt(formData.get('thuongHieuId')),
+                moTa: formData.get('moTa').trim(),
+                huongDan: formData.get('huongDan').trim(),
+                thanhPhan: formData.get('thanhPhan').trim(),
+                gioiTinh: parseInt(formData.get('gioiTinh')),
+                trangThaiSanPham: formData.get('trangThaiSanPham').trim(),
+                trangThaiHoatDong: form.querySelector('[name="trangThaiHoatDong"]').checked
+            };
+
+            // Ràng buộc
+            if (data.ten.length < 3) return alert('Tên sản phẩm ít nhất 3 ký tự!');
+            if (data.giaBan <= 0) return alert('Giá bán phải lớn hơn 0!');
+            if (!data.loaiId || !data.thuongHieuId) return alert('Vui lòng chọn Loại và Thương hiệu!');
+
+            try {
+                const res = await authFetch(`https://localhost:7197/api/SanPham/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    alert('Sửa sản phẩm thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    loadProducts();
+                } else {
+                    alert('Sửa sản phẩm thất bại');
+                }
+            } catch (err) {
+                console.error('Lỗi:', err);
+                alert('Lỗi khi sửa sản phẩm');
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (!confirm('Bạn chắc chắn muốn xóa sản phẩm này?')) return;
+            authFetch(`https://localhost:7197/api/SanPham/${productId}`, { method: 'DELETE' })
+                .then(res => res.ok ? (alert('Xóa thành công'), loadProducts()) : alert('Xóa thất bại'))
+                .catch(err => console.error('Lỗi:', err));
+        }
+
+        async function openAddProductModal() {
+            try {
+                const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+                const categories = await categoriesRes.json();
+                const brandsRes = await authFetch('https://localhost:7197/api/ThuongHieu');
+                const brands = await brandsRes.json();
+                const sizesRes = await authFetch('https://localhost:7197/api/Size');
+                masterSizes = await sizesRes.json();
+                const colorsRes = await authFetch('https://localhost:7197/api/MauSac');
+                masterColors = await colorsRes.json();
+
+                const oldModal = document.getElementById('addProductModal');
+                if (oldModal) oldModal.remove();
+
+                const modalHTML = `
+                <div class="modal fade" id="addProductModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Thêm Sản Phẩm Mới</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addProductForm" onsubmit="event.preventDefault(); return false;">
+                                    <div class="mb-3">
+                                        <label class="form-label font-weight-bold">Tên Sản Phẩm *</label>
+                                        <input type="text" class="form-control" name="ten" placeholder="VD: Áo Thun Polo Nam" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3"><div class="mb-3"><label class="form-label">Giá Bán *</label><input type="number" class="form-control" name="giaBan" required></div></div>
+                                        <div class="col-md-3"><div class="mb-3"><label class="form-label">Giá Nhập</label><input type="number" class="form-control" name="giaNhap" value="0"></div></div>
+                                        <div class="col-md-3"><div class="mb-3"><label class="form-label">Khuyến Mãi</label><input type="number" class="form-control" name="khuyenMai" value="0"></div></div>
+                                        <div class="col-md-3"><div class="mb-3"><label class="form-label">SL Kho *</label><input type="number" class="form-control" name="soLuongConLai" value="10" required></div></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Danh Mục (Gắn với Size/Màu) *</label>
+                                                <select class="form-select border-primary fw-bold" name="loaiSpId" id="addProduct-loaiId" onchange="filterColorsAndSizes(this.value)" required>
+                                                    <option value="">-- Chọn Danh Mục --</option>
+                                                    ${categories.map(c => `<option value="${c.id}">${c.tenLSP || c.ten}</option>`).join('')}
+                                                </select>
+                                                <div class="form-text">Chọn loại sản phẩm để lọc Size và Màu phù hợp.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Thương Hiệu *</label>
+                                                <select class="form-select" name="thuongHieuId" required>
+                                                    <option value="">-- Chọn Thương Hiệu --</option>
+                                                    ${brands.map(b => `<option value="${b.id}">${b.tenTH || b.ten}</option>`).join('')}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Màu Sắc *</label>
+                                                <div class="input-group">
+                                                    <select class="form-select" name="mauId" id="addProduct-mauId" required>
+                                                        <option value="">-- Chọn Màu --</option>
+                                                    </select>
+                                                    <button class="btn btn-outline-primary" type="button" onclick="openAddColorModal(document.getElementById('addProduct-loaiId').value)"><i class="bi bi-plus-lg"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Kích Cỡ (Size) *</label>
+                                                <div class="input-group">
+                                                    <select class="form-select" name="sizeId" id="addProduct-sizeId" required>
+                                                        <option value="">-- Chọn Size --</option>
+                                                    </select>
+                                                    <button class="btn btn-outline-primary" type="button" onclick="openAddSizeModal(document.getElementById('addProduct-loaiId').value)"><i class="bi bi-plus-lg"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Giới Tính *</label>
+                                                <select class="form-select" name="gioiTinh" required>
+                                                    <option value="0">Nam</option>
+                                                    <option value="1">Nữ</option>
+                                                    <option value="2">Unisex</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Trạng Thái (VD: Mới, Hot...)</label>
+                                        <input type="text" class="form-control" name="trangThaiSanPham" placeholder="Nhập trạng thái...">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mô Tả Sản Phẩm</label>
+                                        <textarea class="form-control" name="moTa" rows="2" placeholder="Thông tin chi tiết về sản phẩm"></textarea>
+                                    </div>
+                                    <div class="mb-3 highlight-input">
+                                        <label class="form-label fw-bold text-primary"><i class="bi bi-images me-1"></i>Hình Ảnh Sản Phẩm *</label>
+                                        <input type="file" id="newProductImages" class="form-control" accept="image/*" multiple required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3"><label class="form-label">HD Sử Dụng</label><textarea class="form-control" name="huongDan" rows="2"></textarea></div>
+                                        <div class="col-md-6 mb-3"><label class="form-label">Thành Phần</label><textarea class="form-control" name="thanhPhan" rows="2"></textarea></div>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="trangThaiHoatDong" checked id="chk-active-add">
+                                        <label class="form-check-label" for="chk-active-add">Kích hoạt bán ngay (Hiển thị lên Web)</label>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="submitAddProduct(event)">Thêm Sản Phẩm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                const modalElement = document.getElementById('addProductModal');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+
+                // Ban đầu reset dropdown Màu/Size
+                filterColorsAndSizes('');
+                
+            } catch (err) {
+                console.error("Lỗi khi mở form thêm sản phẩm", err);
+                alert("Không thể tải dữ liệu. Vui lòng kiểm tra lại API.");
+            }
+        }
+
+        // Hàm lọc Màu/Size theo Loại SP khi thêm sản phẩm
+        function filterColorsAndSizes(loaiId) {
+            const mauSelect = document.getElementById('addProduct-mauId');
+            const sizeSelect = document.getElementById('addProduct-sizeId');
+            if (!mauSelect || !sizeSelect) return;
+
+            // Nếu chưa chọn danh mục, xóa trắng hoặc hiện tất cả tùy thiết kế
+            // Ở đây ta xóa trắng để bắt buộc chọn danh mục trước
+            if (!loaiId) {
+                mauSelect.innerHTML = '<option value="">-- Chọn Danh Mục Trước --</option>';
+                sizeSelect.innerHTML = '<option value="">-- Chọn Danh Mục Trước --</option>';
+                return;
+            }
+
+            // Lọc màu sắc
+            const filteredColors = masterColors.filter(c => c.loaiId == loaiId || !c.loaiId);
+            mauSelect.innerHTML = '<option value="">-- Chọn Màu --</option>' + 
+                filteredColors.map(c => `<option value="${c.id}">${c.maMau} (${c.tenMau || 'Màu'})</option>`).join('');
+
+            // Lọc kích cỡ
+            const filteredSizes = masterSizes.filter(s => s.loaiId == loaiId || !s.loaiId);
+            sizeSelect.innerHTML = '<option value="">-- Chọn Size --</option>' + 
+                filteredSizes.map(s => `<option value="${s.id}">${s.tenSize}</option>`).join('');
+        }
+
+        async function submitAddProduct(event) {
+            const form = document.getElementById('addProductForm');
+            const btnSubmit = event.target;
+            const originalText = btnSubmit.innerHTML;
+            
+            // Lấy dữ liệu từ form
+            const formData = new FormData(form);
+            
+            // Hàm helper để parse số an toàn
+            const safeParseInt = (val) => {
+                const n = parseInt(val);
+                return isNaN(n) ? 0 : n;
+            };
+
+            const productData = {
+                ten: formData.get('ten').trim(),
+                giaBan: safeParseInt(formData.get('giaBan')),
+                giaNhap: safeParseInt(formData.get('giaNhap')),
+                khuyenMai: safeParseInt(formData.get('khuyenMai')),
+                loaiId: safeParseInt(formData.get('loaiSpId')),
+                thuongHieuId: safeParseInt(formData.get('thuongHieuId')),
+                gioiTinh: safeParseInt(formData.get('gioiTinh')),
+                huongDan: formData.get('huongDan').trim(),
+                thanhPhan: formData.get('thanhPhan').trim(),
+                trangThaiSanPham: formData.get('trangThaiSanPham').trim(),
+                trangThaiHoatDong: form.querySelector('[name="trangThaiHoatDong"]').checked,
+                moTa: formData.get('moTa').trim()
+            };
+
+            // Kiểm tra ràng buộc cơ bản ở Frontend
+            if (productData.ten.length < 3) return alert("Tên sản phẩm ít nhất 3 ký tự!");
+            if (productData.giaBan <= 0) return alert("Giá bán phải lớn hơn 0!");
+            if (!productData.loaiId || !productData.thuongHieuId) return alert("Vui lòng chọn đầy đủ Tên, Giá bán và Loại/Thương hiệu!");
+
+            const files = document.getElementById('newProductImages').files;
+            if (!files || files.length === 0) return alert("Vui lòng chọn ít nhất một hình ảnh cho sản phẩm mới!");
+
+            try {
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
+
+                // 1. Tạo Sản Phẩm
+                const res = await authFetch('https://localhost:7197/api/SanPham', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(productData)
+                });
+
+                if (res.ok) {
+                    const createdResult = await res.json();
+                    const newId = createdResult.id;
+
+                    // 2. Upload Ảnh Sản Phẩm (Nếu có)
+                    const files = document.getElementById('newProductImages').files;
+                    if (files && files.length > 0) {
+                        for (let file of files) {
+                            const imgFormData = new FormData();
+                            imgFormData.append('file', file);
+                            imgFormData.append('sanPhamId', newId);
+
+                            await fetch('https://localhost:7197/api/AnhSanPham', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                                body: imgFormData
+                            });
+                        }
+                    }
+
+                    // 3. Tạo Biến Thể Đầu Tiên (Nếu được chọn)
+                    const mauId = parseInt(formData.get('mauId'));
+                    const sizeId = parseInt(formData.get('sizeId'));
+                    const soLuong = parseInt(formData.get('soLuongConLai'));
+
+                    if (!isNaN(mauId) && !isNaN(sizeId) && soLuong > 0) {
+                        const variantData = {
+                            sanPhamId: newId,
+                            mauId: mauId,
+                            sizeId: sizeId,
+                            soLuongTon: soLuong
+                        };
+                        await authFetch('https://localhost:7197/api/SanPhamBienThe', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(variantData)
+                        });
+                    }
+
+                    alert('Thêm sản phẩm thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    loadProducts();
+                } else {
+                    alert('Thêm sản phẩm thất bại');
+                }
+            } catch (err) {
+                console.error('Lỗi:', err);
+                alert('Lỗi khi thêm sản phẩm');
+            }
+        }
+
+        // ===== QUẢN LÝ DANH MỤC =====
+        async function openAddCategoryModal() {
+            const modalHTML = `
+                <div class="modal fade" id="addCategoryModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Thêm Danh Mục Mới</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addCategoryForm" onsubmit="event.preventDefault(); return false;">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên Danh Mục *</label>
+                                        <input type="text" class="form-control" name="ten" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mô Tả</label>
+                                        <textarea class="form-control" name="moTa" rows="3"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="submitAddCategory()">Thêm Danh Mục</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            const modal = new bootstrap.Modal(document.getElementById('addCategoryModal'));
+            modal.show();
+        }
+
+        async function submitAddCategory() {
+            const form = document.getElementById('addCategoryForm');
+            const data = {
+                tenLSP: form.querySelector('[name="ten"]').value,
+                moTa: form.querySelector('[name="moTa"]').value
+            };
+
+            try {
+                const res = await authFetch('https://localhost:7197/api/LoaiSP', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    alert('Thêm danh mục thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+                    loadCategories();
+                }
+            } catch (err) {
+                console.error('Lỗi:', err);
+                alert('Lỗi khi thêm danh mục');
+            }
+        }
+
+        async function deleteCategory(categoryId) {
+            if (!confirm('Bạn chắc chắn muốn xóa danh mục này?')) return;
+            try {
+                const res = await authFetch(`https://localhost:7197/api/LoaiSP/${categoryId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('Xóa danh mục thành công');
+                    loadCategories();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi xóa danh mục');
+            }
+        }
+
+        // ===== QUẢN LÝ THƯƠNG HIỆU =====
+        async function openAddBrandModal() {
+            const modalHTML = `
+                <div class="modal fade" id="addBrandModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Thêm Thương Hiệu Mới</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addBrandForm" onsubmit="event.preventDefault(); return false;">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên Thương Hiệu *</label>
+                                        <input type="text" class="form-control" name="ten" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mô Tả</label>
+                                        <textarea class="form-control" name="moTa" rows="3"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-primary" onclick="submitAddBrand()">Thêm Thương Hiệu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            const modal = new bootstrap.Modal(document.getElementById('addBrandModal'));
+            modal.show();
+        }
+
+        async function submitAddBrand() {
+            const form = document.getElementById('addBrandForm');
+            const data = {
+                tenTH: form.querySelector('[name="ten"]').value,
+                moTa: form.querySelector('[name="moTa"]').value
+            };
+
+            try {
+                const res = await authFetch('https://localhost:7197/api/ThuongHieu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    alert('Thêm thương hiệu thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('addBrandModal')).hide();
+                    loadBrands();
+                }
+            } catch (err) {
+                console.error('Lỗi:', err);
+                alert('Lỗi khi thêm thương hiệu');
+            }
+        }
+
+        async function deleteBrand(brandId) {
+            // loadUsers duplicate removed. The main definition is now in the User Management section.
+            if (!confirm('Bạn chắc chắn muốn xóa thương hiệu này?')) return;
+            try {
+                const res = await authFetch(`https://localhost:7197/api/ThuongHieu/${brandId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert('Xóa thương hiệu thành công');
+                    loadBrands();
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi xóa thương hiệu');
+            }
+        }
+
+        /* ==========================================================================
+           7. QUẢN LÝ MÀU SẮC & KÍCH CỠ (COLORS & SIZES)
+           ========================================================================== */
+        async function loadColors() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/MauSac');
+                const data = await res.json();
+                masterColors = data; // Cập nhật dữ liệu màu toàn cục
+                document.getElementById('colors-table-body').innerHTML = data.map(c => {
+                    const tenMau = c.tenMau || c.TenMau || 'Chưa đặt tên';
+                    const maMau = c.maMau || c.MaMau || '#000';
+                    return `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td class="fw-bold">${tenMau}</td>
+                        <td><code>${maMau}</code></td>
+                        <td>${c.loaiId}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div style="width:30px; height:30px; background:${maMau}; border:1px solid #ddd; border-radius:6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                                <span class="ms-2 small text-muted">Preview</span>
+                            </div>
+                        </td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteColor(${c.id})">Xóa</button></td>
+                    </tr>`;
+                }).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function openAddColorModal(linkedLoaiId = null) {
+            const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+            const categories = await categoriesRes.json();
+            const old = document.getElementById('addColorModal'); if (old) old.remove();
+
+            const modalHTML = `
+                <div class="modal fade" id="addColorModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Thêm Màu Sắc</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <form id="addColorForm">
+                                    <div class="mb-3"><label class="form-label">Tên Màu *</label><input type="text" class="form-control" name="tenMau" required></div>
+                                    <div class="mb-3"><label class="form-label">Mã HEX *</label><input type="color" class="form-control w-100" name="maMau" value="#000000"></div>
+                                    <div class="mb-3"><label class="form-label">Loại Sản Phẩm *</label>
+                                        <select class="form-select" name="loaiId" required>
+                                            ${categories.map(c => `<option value="${c.id}" ${linkedLoaiId == c.id ? 'selected' : ''}>${c.tenLSP}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary" onclick="submitAddColor()">Lưu</button></div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('addColorModal'))).show();
+        }
+
+        async function submitAddColor() {
+            const form = document.getElementById('addColorForm');
+            const data = { 
+                tenMau: form.querySelector('[name="tenMau"]').value.trim(), 
+                maMau: form.querySelector('[name="maMau"]').value, 
+                loaiId: parseInt(form.querySelector('[name="loaiId"]').value) 
+            };
+            if (data.tenMau.length < 2) return alert('Tên màu ít nhất 2 ký tự!');
+            if (!data.maMau.startsWith('#') || data.maMau.length < 4) return alert('Mã màu không hợp lệ!');
+            try {
+                const res = await authFetch('https://localhost:7197/api/MauSac', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Đã thêm màu!'); bootstrap.Modal.getInstance(document.getElementById('addColorModal')).hide();
+                    if (document.getElementById('addProductModal')) {
+                        const r = await authFetch('https://localhost:7197/api/MauSac'); masterColors = await r.json();
+                        filterColorsAndSizes(document.getElementById('addProduct-loaiId').value);
+                    }
+                    loadColors();
+                }
+            } catch (err) { alert('Lỗi!'); }
+        }
+
+        async function deleteColor(id) {
+            if (confirm('Xóa màu này?')) authFetch(`https://localhost:7197/api/MauSac/${id}`, { method: 'DELETE' }).then(() => loadColors());
+        }
+
+        async function loadSizes() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/Size');
+                const data = await res.json();
+                document.getElementById('sizes-table-body').innerHTML = data.map(s => `
+                    <tr>
+                        <td>${s.id}</td><td><b>${s.tenSize}</b></td><td>${s.loaiId}</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteSize(${s.id})">Xóa</button></td>
+                    </tr>`).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function openAddSizeModal(linkedLoaiId = null) {
+            const categoriesRes = await authFetch('https://localhost:7197/api/LoaiSP');
+            const categories = await categoriesRes.json();
+            const old = document.getElementById('addSizeModal'); if (old) old.remove();
+
+            const modalHTML = `
+                <div class="modal fade" id="addSizeModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Thêm Kích Cỡ</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <form id="addSizeForm">
+                                    <div class="mb-3"><label class="form-label">Tên Size *</label><input type="text" class="form-control" name="tenSize" required></div>
+                                    <div class="mb-3"><label class="form-label">Loại Sản Phẩm *</label>
+                                        <select class="form-select" name="loaiId" required>
+                                            ${categories.map(c => `<option value="${c.id}" ${linkedLoaiId == c.id ? 'selected' : ''}>${c.tenLSP}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary" onclick="submitAddSize()">Lưu</button></div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('addSizeModal'))).show();
+        }
+
+        async function submitAddSize() {
+            const form = document.getElementById('addSizeForm');
+            const data = { 
+                tenSize: form.querySelector('[name="tenSize"]').value.trim(), 
+                loaiId: parseInt(form.querySelector('[name="loaiId"]').value) 
+            };
+            if (!data.tenSize) return alert('Tên kích cỡ không được trống!');
+            try {
+                const res = await authFetch('https://localhost:7197/api/Size', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Đã thêm size!'); bootstrap.Modal.getInstance(document.getElementById('addSizeModal')).hide();
+                    if (document.getElementById('addProductModal')) {
+                        const r = await authFetch('https://localhost:7197/api/Size'); masterSizes = await r.json();
+                        filterColorsAndSizes(document.getElementById('addProduct-loaiId').value);
+                    }
+                    loadSizes();
+                }
+            } catch (err) { alert('Lỗi!'); }
+        }
+
+        async function deleteSize(id) {
+            if (confirm('Xóa kích cỡ này?')) authFetch(`https://localhost:7197/api/Size/${id}`, { method: 'DELETE' }).then(() => loadSizes());
+        }
+
+        /* ==========================================================================
+           8. QUẢN LÝ NGƯỜI DÙNG (USER MANAGEMENT)
+           ========================================================================== */
+        let rolesList = [];
+        async function loadRoles() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/PhanQuyen');
+                if (res.ok) rolesList = await res.json();
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await authFetch('https://localhost:7197/api/User/all');
+                const users = await res.json();
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = users.map(u => {
+                    const roleName = (u.tenQuyen || '').toLowerCase();
+                    const badge = roleName.includes('admin') ? 'bg-danger' : 'bg-info';
+                    const roleOpts = rolesList.map(r => `<option value="${r.id}" ${u.phanQuyenId == r.id ? 'selected' : ''}>${r.tenQuyen}</option>`).join('');
+                    const border = roleName.includes('admin1') ? 'border-danger border-2' : '';
+                    
+                    return `<tr class="${border}">
+                        <td>${u.id}</td><td><b>${u.hoVaTen || u.tenDangNhap}</b></td><td>${u.email}</td>
+                        <td><span class="badge ${badge}">${u.tenQuyen}</span></td>
+                        <td><select class="form-select form-select-sm" onchange="changeUserRole(${u.id}, this.value)">${roleOpts}</select></td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id})">Xóa</button></td></tr>`;
+                }).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function changeUserRole(userId, roleId) {
+            if (!confirm('Đổi quyền người dùng này?')) return loadUsers();
+            try {
+                const res = await authFetch(`https://localhost:7197/api/User/cap-quyen/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phanQuyenId: parseInt(roleId) })
+                });
+                if (res.ok) (alert('Đã cập nhật!'), loadUsers()); else alert('Lỗi!');
+            } catch (err) { console.error(err); }
+        }
+
+        async function deleteUser(id) {
+            if (confirm('Xóa người dùng này?')) authFetch(`https://localhost:7197/api/User/${id}`, { method: 'DELETE' }).then(() => loadUsers());
+        }
+
+        async function openAddUserModal() {
+            if (rolesList.length === 0) await loadRoles();
+            const old = document.getElementById('addUserModal'); if (old) old.remove();
+
+            const modalHTML = `
+                <div class="modal fade" id="addUserModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Thêm Người Dùng Mới</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <form id="addUserForm">
+                                    <div class="mb-3"><label class="form-label">Tên Đăng Nhập *</label><input type="text" class="form-control" name="tenDangNhap" required></div>
+                                    <div class="mb-3"><label class="form-label">Mật Khẩu *</label><input type="password" class="form-control" name="matKhau" required></div>
+                                    <div class="mb-3"><label class="form-label">Email *</label><input type="email" class="form-control" name="email" required></div>
+                                    <div class="mb-3"><label class="form-label">Họ và Tên *</label><input type="text" class="form-control" name="hoVaTen" required></div>
+                                    <div class="mb-3"><label class="form-label">Quyền Hạn *</label>
+                                        <select class="form-select" name="phanQuyenId" required>
+                                            ${rolesList.map(r => `<option value="${r.id}">${r.tenQuyen}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary" onclick="submitAddUser()">Thêm Người Dùng</button></div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('addUserModal'))).show();
+        }
+
+        async function submitAddUser() {
+            const form = document.getElementById('addUserForm');
+            const data = {
+                tenDangNhap: form.tenDangNhap.value.trim(),
+                matKhau: form.matKhau.value.trim(),
+                email: form.email.value.trim(),
+                hoVaTen: form.hoVaTen.value.trim(),
+                phanQuyenId: parseInt(form.phanQuyenId.value)
+            };
+
+            // Validation
+            if (data.tenDangNhap.length < 4 || data.tenDangNhap.includes(' ')) return alert('Tên đăng nhập ít nhất 4 ký tự, không chứa khoảng trắng!');
+            if (data.matKhau.length < 6) return alert('Mật khẩu ít nhất 6 ký tự!');
+            if (!data.email.includes('@')) return alert('Email không hợp lệ!');
+            if (data.hoVaTen.length < 2) return alert('Họ tên ít nhất 2 ký tự!');
+
+            try {
+                const res = await authFetch('https://localhost:7197/api/Auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    alert('Thêm người dùng thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+                    loadUsers();
+                } else {
+                    const err = await res.json();
+                    alert('Lỗi: ' + (err.message || 'Không thể thêm người dùng'));
+                }
+            } catch (err) { alert('Lỗi hệ thống!'); }
+        }
+
+        document.getElementById('btn-add-user')?.addEventListener('click', openAddUserModal);
+
+        /* ==========================================================================
+           9. QUẢN LÝ ẢNH SẢN PHẨM (IMAGE MANAGEMENT)
+           ========================================================================== */
+        async function manageImages(productId) {
+            const old = document.getElementById('imageModal'); if (old) old.remove();
+            const modalHTML = `
+                <div class="modal fade" id="imageModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header"><h5 class="modal-title">Ảnh Sản Phẩm #${productId}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Tải lên ảnh mới</label>
+                                    <div class="input-group">
+                                        <input type="file" id="imgUp" class="form-control" multiple>
+                                        <button class="btn btn-primary" onclick="uploadImages(${productId})">Tải lên</button>
+                                    </div>
+                                </div>
+                                <div id="imgList" class="row g-2">Đang tải...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            (new bootstrap.Modal(document.getElementById('imageModal'))).show();
+            loadProductImages(productId);
+        }
+
+        async function loadProductImages(pid) {
+            try {
+                const res = await authFetch(`https://localhost:7197/api/AnhSanPham/sanpham/${pid}`);
+                const data = await res.json();
+                const list = document.getElementById('imgList'); if (!list) return;
+                list.innerHTML = data.map(img => `
+                    <div class="col-md-3">
+                        <div class="card h-100">
+                            <img src="${img.tenAnhSP}" class="card-img-top" style="height:100px;object-fit:cover">
+                            <div class="card-footer p-1"><button class="btn btn-sm btn-outline-danger w-100" onclick="deleteImage(${img.id}, ${pid})">Xóa</button></div>
+                        </div>
+                    </div>`).join('') || '<p class="text-center text-muted">Chưa có ảnh.</p>';
+            } catch (err) { console.error(err); }
+        }
+
+        async function uploadImages(pid) {
+            const files = document.getElementById('imgUp').files;
+            if (!files.length) return alert('Chọn ảnh!');
+            for (let f of files) {
+                const fd = new FormData(); fd.append('file', f); fd.append('sanPhamId', pid);
+                await fetch('https://localhost:7197/api/AnhSanPham', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }, body: fd });
+            }
+            alert('Đã tải xong!'); loadProductImages(pid);
+        }
+
+        async function deleteImage(id, pid) {
+            if (confirm('Xóa ảnh này?')) authFetch(`https://localhost:7197/api/AnhSanPham/${id}`, { method: 'DELETE' }).then(() => loadProductImages(pid));
+        }
+
+        // Tự động khởi chạy
+        kiemTraQuyenAdmin();
+        
+        // Tải dữ liệu Master ngay để các trang khác sử dụng (như variant display)
+        Promise.all([
+            loadRoles(),
+            authFetch('https://localhost:7197/api/MauSac').then(r => r.json()).then(d => masterColors = d),
+            authFetch('https://localhost:7197/api/Size').then(r => r.json()).then(d => masterSizes = d)
+        ]).then(() => {
+            loadStats();
+        });
+    </script>
+</body>
+</html>

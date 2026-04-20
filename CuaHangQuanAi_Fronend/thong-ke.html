@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê - NT Clothing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #f5f7fa; }
+        .card { border-radius: 12px; }
+        .stat-value { font-size: 2rem; font-weight: 700; }
+        .page-title { color: #0d6efd; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="admin-dashboard.html">NT CLOTHING</a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="admin-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Thống Kê</a></li>
+                    <li class="nav-item"><button class="btn btn-outline-light btn-sm" onclick="logout()">Đăng xuất</button></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="page-title mb-4">Báo cáo thống kê</h2>
+
+        <div class="row g-3">
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted">Tổng đơn hàng</div><div id="totalOrders" class="stat-value">-</div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted">Đơn chờ duyệt</div><div id="pendingOrders" class="stat-value">-</div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted">Tổng doanh thu</div><div id="totalRevenue" class="stat-value">-</div></div></div>
+            <div class="col-md-3"><div class="card p-3"><div class="text-muted">Tổng người dùng</div><div id="totalUsers" class="stat-value">-</div></div></div>
+        </div>
+
+        <div class="row g-3 mt-3">
+            <div class="col-md-4"><div class="card p-3"><div class="text-muted">Doanh thu hôm nay</div><div id="revenueToday" class="stat-value">-</div></div></div>
+            <div class="col-md-4"><div class="card p-3"><div class="text-muted">Tháng này</div><div id="revenueMonth" class="stat-value">-</div></div></div>
+            <div class="col-md-4"><div class="card p-3"><div class="text-muted">Năm nay</div><div id="revenueYear" class="stat-value">-</div></div></div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-6"><div class="card p-3"><h5>Phân bố trạng thái đơn</h5><canvas id="statusChart"></canvas></div></div>
+            <div class="col-md-6"><div class="card p-3"><h5>Doanh thu theo tháng</h5><canvas id="monthlyChart"></canvas></div></div>
+        </div>
+
+        <div class="card p-3 mt-4"><h5>Top 10 sản phẩm bán chạy</h5><div id="topProductsList"></div></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        const API_BASE = 'https://localhost:7197/api';
+        const charts = {};
+
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'dang-nhap.html';
+                throw new Error('Chưa đăng nhập');
+            }
+            const headers = options.headers ? {...options.headers} : {};
+            headers['Authorization'] = 'Bearer ' + token;
+            
+            const res = await fetch(url, { ...options, headers });
+            if (res.status === 401 || res.status === 403) {
+                alert('Bạn không có quyền truy cập hoặc phiên đăng nhập đã hết hạn!');
+                window.location.href = 'dang-nhap.html';
+                throw new Error('Không có quyền truy cập');
+            }
+            return res;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        }
+
+        async function loadOverview() {
+            const res = await authFetch(`${API_BASE}/ThongKe/overview`);
+            const data = await res.json();
+            document.getElementById('totalOrders').textContent = data.totalOrders ?? '-';
+            document.getElementById('pendingOrders').textContent = data.pendingOrders ?? '-';
+            document.getElementById('totalRevenue').textContent = formatCurrency(data.totalRevenue ?? 0);
+            document.getElementById('totalUsers').textContent = data.totalUsers ?? '-';
+            document.getElementById('revenueToday').textContent = formatCurrency(data.revenueToday ?? 0);
+            document.getElementById('revenueMonth').textContent = formatCurrency(data.revenueThisMonth ?? 0);
+            document.getElementById('revenueYear').textContent = formatCurrency(data.revenueThisYear ?? 0);
+            await loadCharts();
+            await loadTopProducts();
+        }
+
+        async function loadCharts() {
+            const r1 = await authFetch(`${API_BASE}/ThongKe/order-status-distribution`);
+            const data1 = await r1.json();
+            const ctx1 = document.getElementById('statusChart');
+            if (charts.status) charts.status.destroy();
+            charts.status = new Chart(ctx1, {
+                type: 'doughnut',
+                data: { labels: Object.keys(data1), datasets: [{ data: Object.values(data1), backgroundColor: ['#ffc107','#28a745','#007bff','#17a2b8','#dc3545'] }] },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const r2 = await authFetch(`${API_BASE}/ThongKe/monthly-sales`);
+            const data2 = await r2.json();
+            const ctx2 = document.getElementById('monthlyChart');
+            if (charts.monthly) charts.monthly.destroy();
+            charts.monthly = new Chart(ctx2, {
+                type: 'line',
+                data: { labels: Object.keys(data2), datasets: [{ label: 'Doanh thu', data: Object.values(data2), borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.12)', tension: 0.2, fill: true }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        async function loadTopProducts() {
+            const res = await authFetch(`${API_BASE}/ThongKe/top-selling-products?topN=10`);
+            if (!res.ok) {
+                throw new Error('Không thể gọi API thống kê top sản phẩm');
+            }
+            const data = await res.json();
+            let html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>#</th><th>Sản phẩm</th><th>Số lượng</th><th>Doanh số</th></tr></thead><tbody>';
+            data.forEach((p, i) => html += `<tr><td>${i+1}</td><td>${p.tenSanPham}</td><td>${p.soLuongBan}</td><td>${formatCurrency(p.doanhSo)}</td></tr>`);
+            html += '</tbody></table></div>';
+            document.getElementById('topProductsList').innerHTML = html;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'dang-nhap.html';
+        }
+
+        window.addEventListener('load', loadOverview);
+    </script>
+</body>
+</html>

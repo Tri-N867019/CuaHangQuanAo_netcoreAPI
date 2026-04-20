@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - NT Clothing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+    <div id="app-header"></div>
+
+    <div class="container my-4" id="cart-container">
+        <h2>Giỏ hàng</h2>
+        <div class="text-center mt-5">
+            <div class="spinner-border text-dark" role="status"></div>
+            <p class="mt-3">Đang tải giỏ hàng...</p>
+        </div>
+    </div>
+
+    <div id="app-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        async function renderCartPage() {
+            const container = document.getElementById('cart-container');
+            const token = localStorage.getItem('token');
+            let items = [];
+
+            updateCartBadge();
+
+            if (token) {
+                try {
+                    const res = await fetch(`https://localhost:7197/api/GioHang`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        items = data.map(d => ({
+                            id: d.id, 
+                            ten: d.tenSanPham,
+                            mau: d.tenMau,
+                            size: d.tenSize,
+                            qty: d.soLuong,
+                            gia: d.giaBan,
+                            thanhTien: d.thanhTien
+                        }));
+                    }
+                } catch (err) {
+                    console.error("Lỗi lấy giỏ hàng server:", err);
+                }
+            } else {
+                const localCart = getCart();
+                if (localCart && localCart.length > 0) {
+                    const detailItems = await Promise.all(localCart.map(async item => {
+                        try {
+                            const res = await authFetch(`https://localhost:7197/api/SanPham/chitiet/${item.id}`);
+                            if (!res.ok) return null;
+                            const p = await res.json();
+                            return { 
+                                id: item.id, 
+                                ten: p.ten, 
+                                qty: item.qty, 
+                                gia: p.giaBan 
+                            };
+                        } catch (e) { return null; }
+                    }));
+                    items = detailItems.filter(x => x !== null);
+                }
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info py-4">Giỏ hàng của bạn đang trống. <a href="san-pham.html" class="alert-link">Tiếp tục mua sắm</a>.</div>
+                `;
+                return;
+            }
+
+            const rows = items.map(item => {
+                const amount = item.thanhTien || (item.gia * item.qty);
+                const bienTheInfo = (item.mau || item.size) ? `<br><small class="text-secondary">Màu: ${item.mau || '-'}, Size: ${item.size || '-'}</small>` : '';
+                
+                return `
+                    <tr>
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input item-checkbox" data-id="${item.id}" data-amount="${amount}" checked onchange="updateSelectedTotal()">
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">${item.ten}</span>
+                            ${bienTheInfo}
+                        </td>
+                        <td>${item.qty}</td>
+                        <td>${item.gia.toLocaleString('vi-VN')} đ</td>
+                        <td>${amount.toLocaleString('vi-VN')} đ</td>
+                        <td><button class="btn btn-sm btn-outline-danger" onclick="removeCartItem(${item.id})"><i class="bi bi-trash"></i></button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="table-responsive my-3">
+                    <table class="table table-bordered align-middle table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" width="50">
+                                    <input type="checkbox" class="form-check-input" id="select-all" checked onchange="toggleSelectAll(this)">
+                                </th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-end">Tổng cộng (Đã chọn)</th>
+                                <th colspan="2" class="text-danger fw-bold fs-5" id="selected-total">0 đ</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0 border-top border-4 border-primary">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold mb-3"><i class="bi bi-truck me-2"></i>Thông tin giao hàng</h5>
+                                <form id="checkout-form">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên người nhận *</label>
+                                        <input type="text" class="form-control" name="tenNguoiNhan" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Số điện thoại *</label>
+                                        <input type="tel" class="form-control" name="SDTNhanHang" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Địa chỉ nhận hàng *</label>
+                                        <textarea class="form-control" name="diaChiGiaoHang" rows="2" required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ghi chú</label>
+                                        <textarea class="form-control" name="ghiChu" rows="1"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end d-flex flex-column justify-content-end align-items-end">
+                        <a href="san-pham.html" class="btn btn-outline-secondary mb-2 w-50">Tiếp tục mua sắm</a>
+                        
+                        <div id="checkout-actions" class="w-100 d-flex flex-column align-items-end">
+                            <button class="btn btn-dark mb-2 w-50 btn-checkout-action" onclick="processCheckout('COD')"> <i class="bi bi-cash me-2"></i>Thanh toán khi nhận hàng</button>
+                            <button class="btn btn-primary w-50 btn-checkout-action" onclick="processCheckout('VNPAY')"> <i class="bi bi-credit-card me-2"></i>Thanh toán qua VNPAY</button>
+                        </div>
+                        
+                        <div id="admin-notice" class="alert alert-warning fs-13 mt-2 w-50 text-start d-none">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            Tài khoản quản trị không thể đặt hàng. Vui lòng dùng tài khoản Khách để mua sắm.
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const role = localStorage.getItem('role');
+            if (role === 'Admin' || role === 'Admin1') {
+                document.querySelectorAll('.btn-checkout-action').forEach(b => b.classList.add('d-none'));
+                document.getElementById('admin-notice').classList.remove('d-none');
+            }
+
+            updateSelectedTotal();
+        }
+
+        function toggleSelectAll(masterSource) {
+            document.querySelectorAll('.item-checkbox').forEach(cb => {
+                cb.checked = masterSource.checked;
+            });
+            updateSelectedTotal();
+        }
+
+        function updateSelectedTotal() {
+            let total = 0;
+            const checkboxes = document.querySelectorAll('.item-checkbox:checked');
+            checkboxes.forEach(cb => {
+                total += parseFloat(cb.dataset.amount);
+            });
+            const display = document.getElementById('selected-total');
+            if (display) display.innerText = total.toLocaleString('vi-VN') + ' đ';
+
+            // Cập nhật trạng thái nút thanh toán
+            document.querySelectorAll('.btn-checkout-action').forEach(btn => {
+                btn.disabled = checkboxes.length === 0;
+            });
+
+            // Cập nhật select-all checkbox
+            const all = document.querySelectorAll('.item-checkbox');
+            const selectAll = document.getElementById('select-all');
+            if (selectAll) selectAll.checked = all.length > 0 && checkboxes.length === all.length;
+        }
+
+        async function removeCartItem(id) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const res = await fetch(`https://localhost:7197/api/GioHang/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        renderCartPage();
+                    } else {
+                        const err = await res.text();
+                        alert("Lỗi: " + err);
+                    }
+                } catch (e) {
+                    console.error("Lỗi xóa sản phẩm:", e);
+                }
+            } else {
+                const cart = getCart().filter(item => item.id !== id);
+                setCart(cart);
+                updateCartBadge();
+                renderCartPage();
+            }
+        }
+
+        async function processCheckout(method) {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+
+            if (role === 'Admin' || role === 'Admin1') {
+                alert('Tài khoản quản trị không thể đặt hàng. Vui lòng sử dụng tài khoản Khách hàng.');
+                return;
+            }
+
+            if (!token) {
+                alert('Vui lòng đăng nhập trước khi thanh toán.');
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            const selectedIds = Array.from(document.querySelectorAll('.item-checkbox:checked')).map(cb => parseInt(cb.dataset.id));
+            if (selectedIds.length === 0) {
+                alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+                return;
+            }
+
+            const form = document.getElementById('checkout-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const checkoutData = {
+                cartItemIds: selectedIds,
+                tenNguoiNhan: formData.get('tenNguoiNhan').trim(),
+                SDTNhanHang: formData.get('SDTNhanHang').trim(),
+                diaChiGiaoHang: formData.get('diaChiGiaoHang').trim(),
+                ghiChu: formData.get('ghiChu').trim(),
+                phuongThucThanhToan: method
+            };
+
+            if (checkoutData.tenNguoiNhan.length < 2) return alert('Tên người nhận phải có ít nhất 2 ký tự!');
+            const phoneRegex = /^(0|84)(3|5|7|8|9)([0-9]{8})$/;
+            if (!phoneRegex.test(checkoutData.SDTNhanHang)) return alert('Số điện thoại nhận hàng không hợp lệ (10 số)!');
+            if (checkoutData.diaChiGiaoHang.length < 5) return alert('Địa chỉ giao hàng quá ngắn!');
+
+            try {
+                const res = await authFetch('https://localhost:7197/api/HoaDon/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(checkoutData)
+                });
+
+                if (res.ok) {
+                    if (method === 'VNPAY') {
+                        alert('Đang chuyển hướng sang VNPAY...');
+                        const historyRes = await authFetch('https://localhost:7197/api/HoaDon/lich-su');
+                        const history = await historyRes.json();
+                        const latestOrder = history[0]; 
+                        
+                        const vnpayRes = await authFetch(`https://localhost:7197/api/Payment/create-vnpay-url/${latestOrder.id}`);
+                        const vnpayData = await vnpayRes.json();
+                        window.location.href = vnpayData.url;
+                    } else {
+                        alert('Đặt hàng thành công! Cảm ơn bạn.');
+                        renderCartPage(); // Tải lại giỏ hàng vì một số món đã mất
+                    }
+                } else {
+                    const errMsg = await res.text();
+                    alert('Lỗi đặt hàng: ' + errMsg);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi hệ thống khi thanh toán.');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await renderCartPage();
+        });
+    </script>
+</body>
+</html>

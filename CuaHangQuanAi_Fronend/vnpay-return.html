@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán - NT Clothing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .result-card {
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .status-icon-wrap {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            animation: scaleIn 0.5s ease;
+        }
+        @keyframes scaleIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div id="app-header"></div>
+
+    <div class="container my-5 py-5 text-center">
+        <div id="result-container" class="card result-card shadow-lg p-5 border-0 mx-auto" style="max-width: 600px;">
+            <div class="py-5">
+                <div class="spinner-border text-dark" role="status" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-4 fw-bold text-secondary">Đang kiểm tra kết quả giao dịch...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const orderId = urlParams.get('orderId');
+            const code = urlParams.get('code');
+
+            const container = document.getElementById('result-container');
+
+            // Đợi app-header load xong (giả lập 500ms để mượt mà)
+            await new Promise(r => setTimeout(r, 800));
+
+            if (status === 'success') {
+                container.innerHTML = `
+                    <div class="status-icon-wrap bg-success bg-opacity-10">
+                        <i class="bi bi-check-lg text-success" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h2 class="fw-bolder text-dark mb-3">Thanh toán hoàn tất!</h2>
+                    <p class="text-secondary mb-4 px-lg-5">Tuyệt vời! Đơn hàng <span class="text-dark fw-bold">#${orderId}</span> của bạn đã được thanh toán thành công và đang chuẩn bị được xử lý.</p>
+                    
+                    <div class="bg-light p-3 rounded-4 mb-4 text-start">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary small">Mã đơn hàng:</span>
+                            <span class="fw-bold fs-14">#${orderId}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary small">Trạng thái:</span>
+                            <span class="badge bg-success">Đã thanh toán</span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <a href="index.html" class="btn btn-dark btn-lg rounded-pill fw-bold">Trở về trang chủ</a>
+                        <a href="thong-tin-tai-khoan.html#history" class="btn btn-link text-decoration-none text-secondary fw-bold">Xem lại lịch sử mua hàng</a>
+                    </div>
+                `;
+            } else if (status === 'fail' || status === 'cancel') {
+                const isCancel = code === '24' || status === 'cancel';
+                const message = isCancel 
+                    ? "Bạn đã chủ động hủy giao dịch trên hệ thống cổng thanh toán."
+                    : `Chúng tôi không thể xử lý thanh toán của bạn lúc này (Mã lỗi: ${code || 'Unknown'}).`;
+
+                container.innerHTML = `
+                    <div class="status-icon-wrap bg-danger bg-opacity-10">
+                        <i class="bi bi-x-lg text-danger" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h2 class="fw-bolder text-dark mb-3">${isCancel ? 'Đã hủy thanh toán' : 'Giao dịch thất bại'}</h2>
+                    <p class="text-secondary mb-4 px-lg-5">${message} Đừng lo lắng, các sản phẩm vẫn nằm trong giỏ hàng của bạn.</p>
+                    
+                    <div class="d-grid gap-3">
+                        <a href="gio-hang.html" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm">
+                            <i class="bi bi-cart-fill me-2"></i>QUAY LẠI GIỎ HÀNG
+                        </a>
+                        <a href="index.html" class="btn btn-link text-decoration-none text-secondary fw-bold">Về trang chủ mua thêm</a>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="status-icon-wrap bg-warning bg-opacity-10">
+                        <i class="bi bi-question-lg text-warning" style="font-size: 3.5rem;"></i>
+                    </div>
+                    <h2 class="fw-bolder text-dark mb-3">Thông tin không hợp lệ</h2>
+                    <p class="text-secondary mb-4 px-lg-5">Chúng tôi không tìm thấy thông tin hợp lệ về giao dịch này. Vui lòng kiểm tra lại trong lịch sử mua sắm.</p>
+                    <div class="d-grid gap-2">
+                        <a href="index.html" class="btn btn-dark btn-lg rounded-pill fw-bold">Về trang chủ</a>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
+

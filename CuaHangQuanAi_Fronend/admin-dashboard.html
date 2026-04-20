@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển Admin - NT Clothing</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --primary-color: #FF6B35;
+            --secondary-color: #004E89;
+            --light-gray: #F5F5F5;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: var(--secondary-color);
+            padding: 15px 30px;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 24px;
+            color: white !important;
+        }
+
+        .dashboard-container {
+            padding: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h6 {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-card.blue {
+            border-left-color: var(--secondary-color);
+        }
+
+        .stat-card.blue .stat-value {
+            color: var(--secondary-color);
+        }
+
+        .stat-card.green {
+            border-left-color: #28a745;
+        }
+
+        .stat-card.green .stat-value {
+            color: #28a745;
+        }
+
+        .stat-card.warning {
+            border-left-color: #ffc107;
+        }
+
+        .stat-card.warning .stat-value {
+            color: #ffc107;
+        }
+
+        .chart-container {
+            background: white;
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h5 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .orders-table {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .orders-table h5 {
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .table th {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-shipped {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-delivered {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .sidebar {
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .sidebar .nav-link {
+            color: #fff !important;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading .spinner-border {
+            color: var(--primary-color);
+        }
+
+        .icon-stat {
+            font-size: 24px;
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-clothes"></i> NT CLOTHING - Admin
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">Admin</span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">Đăng Xuất</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid dashboard-container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar">
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="#overview">
+                        <i class="bi bi-speedometer2"></i> Tổng Quan
+                    </a>
+                    <a class="nav-link" href="#orders" onclick="loadOrders()">
+                        <i class="bi bi-bag-check"></i> Quản Lý Đơn Hàng
+                    </a>
+                    <a class="nav-link" href="#users" onclick="loadUsers()">
+                        <i class="bi bi-people"></i> Quản Lý Người Dùng
+                    </a>
+                    <a class="nav-link" href="#products" onclick="loadProducts()">
+                        <i class="bi bi-shop"></i> Quản Lý Sản Phẩm
+                    </a>
+                    <a class="nav-link" href="#overview" onclick="loadStatistics(); showSection('overview');">
+                        <i class="bi bi-graph-up"></i> Thống Kê
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10" id="mainContent">
+                <!-- Overview Section -->
+                <div id="overview" class="section-overview">
+                    <h3 class="mb-4">Tổng Quan</h3>
+
+                    <!-- Top Stats Row 1 -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <h6><i class="bi bi-bag-check icon-stat"></i>Tổng Đơn Hàng</h6>
+                                <div class="stat-value" id="totalOrders">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card warning h-100">
+                                <h6><i class="bi bi-clock icon-stat"></i>Chờ Duyệt</h6>
+                                <div class="stat-value" id="pendingOrders">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card green h-100">
+                                <h6><i class="bi bi-currency-dollar icon-stat"></i>Tổng Doanh Thu</h6>
+                                <div class="stat-value" id="totalRevenue">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card blue h-100">
+                                <h6><i class="bi bi-people icon-stat"></i>Tổng Người Dùng</h6>
+                                <div class="stat-value" id="totalUsers">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Stats Row 2 -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <h6><i class="bi bi-clock-history icon-stat"></i>Doanh Thu Hôm Nay</h6>
+                                <div class="stat-value" id="revenueToday">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card blue h-100">
+                                <h6><i class="bi bi-calendar-month icon-stat"></i>Doanh Thu Tháng Này</h6>
+                                <div class="stat-value" id="revenueMonth">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card green h-100">
+                                <h6><i class="bi bi-calendar-year icon-stat"></i>Doanh Thu Năm Nay</h6>
+                                <div class="stat-value" id="revenueYear">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card h-100">
+                                <h6><i class="bi bi-shop icon-stat"></i>Tổng Sản Phẩm</h6>
+                                <div class="stat-value" id="totalProducts">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5>Phân Bố Trạng Thái Đơn Hàng</h5>
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <h5>Doanh Thu Theo Tháng</h5>
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="chart-container">
+                                <h5>10 Sản Phẩm Bán Chạy Nhất</h5>
+                                <div id="topProductsList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Section -->
+                <div id="orders" class="section-orders" style="display: none;">
+                    <h3 class="mb-4">Quản Lý Đơn Hàng</h3>
+                    <div id="ordersContent"></div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="users" class="section-users" style="display: none;">
+                    <h3 class="mb-4">Quản Lý Người Dùng</h3>
+                    <div id="usersContent"></div>
+                </div>
+
+                <!-- Products Section -->
+                <div id="products" class="section-products" style="display: none;">
+                    <h3 class="mb-4">Quản Lý Sản Phẩm</h3>
+                    <div id="productsContent"></div>
+                </div>
+
+                <!-- Statistics Section -->
+                <div id="statistics" class="section-statistics" style="display: none;">
+                    <h3 class="mb-4">Thống Kê Chi Tiết</h3>
+                    <div id="statisticsContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        const API_BASE = 'https://localhost:7197/api';
+        let charts = {};
+
+        function authFetch(url, options = {}) {
+            const token = localStorage.getItem('token');
+            const headers = options.headers ? {...options.headers} : {};
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            return fetch(url, { ...options, headers });
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(value);
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await authFetch(`${API_BASE}/ThongKe/overview`);
+                const data = await response.json();
+
+                // Update stat cards
+                document.getElementById('totalOrders').textContent = data.totalOrders || '-';
+                document.getElementById('pendingOrders').textContent = data.pendingOrders || '-';
+                document.getElementById('totalRevenue').textContent = formatCurrency(data.totalRevenue || 0);
+                document.getElementById('totalUsers').textContent = data.totalUsers || '-';
+                document.getElementById('revenueToday').textContent = formatCurrency(data.revenueToday || 0);
+                document.getElementById('revenueMonth').textContent = formatCurrency(data.revenueThisMonth || 0);
+                document.getElementById('revenueYear').textContent = formatCurrency(data.revenueThisYear || 0);
+                document.getElementById('totalProducts').textContent = data.totalProducts || '-';
+
+                // Load charts
+                await loadOrderStatusChart();
+                await loadMonthlySalesChart();
+                await loadTopProducts();
+
+            } catch (error) {
+                console.error('Lỗi tải thống kê:', error);
+            }
+        }
+
+        async function loadOrderStatusChart() {
+            try {
+                const response = await authFetch(`${API_BASE}/ThongKe/order-status-distribution`);
+                const data = await response.json();
+
+                const ctx = document.getElementById('statusChart');
+                if (charts.status) charts.status.destroy();
+
+                charts.status = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            data: Object.values(data),
+                            backgroundColor: [
+                                '#ffc107',
+                                '#28a745',
+                                '#007bff',
+                                '#17a2b8',
+                                '#dc3545'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Lỗi tải biểu đồ trạng thái:', error);
+            }
+        }
+
+        async function loadMonthlySalesChart() {
+            try {
+                const response = await authFetch(`${API_BASE}/ThongKe/monthly-sales`);
+                const data = await response.json();
+
+                const ctx = document.getElementById('monthlyChart');
+                if (charts.monthly) charts.monthly.destroy();
+
+                charts.monthly = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'Doanh Thu',
+                            data: Object.values(data),
+                            borderColor: '#FF6B35',
+                            backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Lỗi tải biểu đồ doanh thu:', error);
+            }
+        }
+
+        async function loadTopProducts() {
+            try {
+                const response = await authFetch(`${API_BASE}/ThongKe/top-selling-products?topN=10`);
+                const data = await response.json();
+
+                let html = '<div class="table-responsive"><table class="table table-hover"><thead>';
+                html += '<tr><th>Sản Phẩm</th><th>Số Lượt Bán</th><th>Doanh Số</th></tr></thead><tbody>';
+
+                data.forEach((product, index) => {
+                    html += `<tr>
+                        <td>${index + 1}. ${product.tenSanPham}</td>
+                        <td>${product.soLuongBan}</td>
+                        <td>${formatCurrency(product.doanhSo)}</td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+                document.getElementById('topProductsList').innerHTML = html;
+            } catch (error) {
+                console.error('Lỗi tải top sản phẩm:', error);
+            }
+        }
+
+        async function loadOrders() {
+            try {
+                const response = await authFetch(`${API_BASE}/HoaDon/all`);
+                const orders = await response.json();
+
+                let html = '<div class="table-responsive"><table class="table table-hover"><thead>';
+                html += '<tr><th>Mã Đơn</th><th>Người Nhận</th><th>Số Điện Thoại</th><th>Tổng Tiền</th><th>Trạng Thái</th><th>Ngày Tạo</th></tr></thead><tbody>';
+
+                orders.forEach(order => {
+                    const statusText = getStatusText(order.trangThai);
+                    const statusClass = getStatusClass(order.trangThai);
+                    html += `<tr>
+                        <td>#${order.id}</td>
+                        <td>${order.tenNguoiNhan}</td>
+                        <td>${order.sdtNhanHang || '---'}</td>
+                        <td>${formatCurrency(order.tongTien)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${new Date(order.ngayTao).toLocaleDateString('vi-VN')}</td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+                document.getElementById('ordersContent').innerHTML = html;
+            } catch (error) {
+                console.error('Lỗi tải danh sách đơn hàng:', error);
+                document.getElementById('ordersContent').innerHTML = '<p class="text-danger">Lỗi tải dữ liệu!</p>';
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                let response = await authFetch(`${API_BASE}/User/all`);
+                if (!response.ok) {
+                    response = await authFetch(`${API_BASE}/User`); // fallback route
+                }
+                if (!response.ok) {
+                    throw new Error('Không thể gọi API /api/User/all hoặc /api/User');
+                }
+
+                const users = await response.json();
+
+                let html = '<div class="table-responsive"><table class="table table-hover"><thead>';
+                html += '<tr><th>ID</th><th>Tên Đăng Nhập</th><th>Email</th><th>Họ Tên</th><th>Quyền</th></tr></thead><tbody>';
+
+                users.forEach(user => {
+                    html += `<tr>
+                        <td>${user.id}</td>
+                        <td>${user.tenDangNhap}</td>
+                        <td>${user.email}</td>
+                        <td>${user.hoVaTen}</td>
+                        <td><span class="badge bg-primary">${user.tenQuyen || 'Người dùng'}</span></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+                document.getElementById('usersContent').innerHTML = html;
+            } catch (error) {
+                console.error('Lỗi tải danh sách người dùng:', error);
+                document.getElementById('usersContent').innerHTML = '<p class="text-danger">Lỗi tải dữ liệu! ' + error.message + '</p>';
+            }
+        }
+
+        function getStatusText(status) {
+            const statuses = {
+                0: 'Chờ Duyệt',
+                1: 'Đã Duyệt',
+                2: 'Đang Vận Chuyển',
+                3: 'Đã Giao',
+                '-1': 'Bị Từ Chối'
+            };
+            return statuses[status] || 'Không Xác Định';
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 0: return 'status-pending';
+                case 1: return 'status-approved';
+                case 2: return 'status-shipped';
+                case 3: return 'status-delivered';
+                case -1: return 'status-rejected';
+                default: return 'status-pending';
+            }
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(`section-${sectionId}`);
+            if (target) target.style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'dang-nhap.html';
+        }
+
+        // Show overview by default (dashboard stat tích hợp)
+        window.addEventListener('load', () => {
+            showSection('overview');
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+/* ========================================= */
+/* 1. THIẾT LẬP CHUNG (GLOBAL UTILITIES)     */
+/* ========================================= */
+/* Những class dùng chung mọi trang để tối giản Code HTML */
+.fs-12 { font-size: 12px !important; }
+.fs-13 { font-size: 13px !important; }
+.fs-14 { font-size: 14px !important; }
+.fw-800 { font-weight: 800 !important; }
+.letter-spacing-05 { letter-spacing: 0.5px !important; }
+.letter-spacing-1 { letter-spacing: 1px !important; }
+.letter-spacing-2 { letter-spacing: 2px !important; }
+.cursor-pointer { cursor: pointer !important; }
+
+/* ========================================= */
+/* 2. HEADER & NAVIGATION (Thanh Menu Trên)  */
+/* ========================================= */
+/* Hiệu ứng tô đậm và đổi màu khi rê chuột vào Menu */
+.nav-item .nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-item .nav-link:hover {
+    color: #b91d1d !important;
+    font-weight: 800 !important;
+}
+
+/* Hiệu ứng tự động xổ Dropdown khi rê chuột */
+@media all and (min-width: 992px) {
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        margin-top: 0;
+    }
+    
+    .dropdown-menu {
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+}
+
+/* Fix dropdown bị cắt ngoài màn hình - đảm bảo overflow:visible */
+header, 
+nav.navbar, 
+.header-tools, 
+.offcanvas, 
+.offcanvas-body {
+    overflow: visible !important;
+}
+
+header {
+    z-index: 3000 !important;
+}
+
+/* Quan trọng: Sửa lỗi Dropdown bị ẩn khi không zoom to */
+@media (min-width: 992px) {
+    /* Thu hẹp khoảng cách menu để vừa trên 1 hàng */
+    .nav-item .nav-link {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        font-size: 13px !important;
+        letter-spacing: 0.5px;
+    }
+}
+
+/* Header Tools Grouping */
+.header-tools {
+    position: relative;
+    z-index: 9999 !important; /* Luôn nằm trên cùng tuyệt đối */
+    background: white; 
+    padding-left: 10px;
+    pointer-events: auto !important; /* Đảm bảo luôn nhận cú click */
+}
+
+/* Đảm bảo khung menu giữa không đè lên phần công cụ bên phải khi ở màn hình lớn */
+@media (min-width: 992px) {
+    .offcanvas {
+        max-width: 60%; 
+    }
+}
+
+/* Loại bỏ gạch chân gây nhầm lẫn ở các icon Header */
+.navbar-brand, 
+.header-tools a, 
+.nav-link {
+    text-decoration: none !important;
+}
+
+/* Tăng vùng Click cho các nút công cụ Header */
+.header-tools a, 
+#user-menu-container {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.header-tools a:hover, 
+#user-menu-container:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+#user-menu-container .dropdown-toggle::after {
+    display: none; 
+}
+
+/* Style cho phần thông tin tài khoản luôn hiển thị ở Header */
+.user-header-box {
+    border-radius: 30px;
+    background: #f8f9fa;
+    padding: 2px 10px 2px 2px !important;
+    transition: all 0.2s ease;
+    overflow: visible !important;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+
+.user-header-box:hover {
+    background: #eeeeee;
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.fs-10 { font-size: 10px !important; }
+
+/* Đảm bảo Dropdown Menu trông hiện đại và mượt mà */
+#user-menu-container .dropdown-menu {
+    border: none !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+    border-radius: 12px !important;
+    padding: 8px 0 !important;
+    min-width: 220px !important;
+    z-index: 99999 !important;
+    display: none; /* Mặc định ẩn */
+}
+
+/* Ép hiển thị khi có class .show từ Bootstrap hoặc khi hover trên Desktop */
+#user-menu-container .dropdown-menu.show,
+@media (min-width: 992px) {
+    #user-menu-container:hover .dropdown-menu {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        animation: dropdown-fade-in 0.25s ease-out;
+    }
+}
+
+#user-menu-container .dropdown-menu.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: dropdown-fade-in 0.25s ease-out;
+}
+
+.dropdown-item {
+    font-size: 14px;
+    transition: all 0.2s;
+    padding: 10px 20px;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    padding-left: 25px;
+}
+
+@keyframes dropdown-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================= */
+/* 3. TRANG CHỦ (LANDING PAGE - INDEX.HTML)  */
+/* ========================================= */
+.hero-banner {
+    /* Giả lập ảnh bìa thật của hãng, có bóng mờ tối để làm nổi bật chữ trắng */
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://cdn.hstatic.net/files/200000886795/file/pc-aris-hompage_0ad9df2ce1ac49968b8afe84cdf69376.jpg') no-repeat center center/cover;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+.category-card {
+    transition: transform 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+}
+.category-card:hover img {
+    transform: scale(1.05); /* Hiệu ứng zoom ảnh khi rê chuột vào cực xịn */
+    transition: transform 0.8s ease;
+}
+.category-card img {
+    height: 450px;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+/* ========================================= */
+/* 4. TRANG SẢN PHẨM & BỘ LỌC BÊN TRÁI       */
+/* ========================================= */
+/* Placeholder cho những class của trang Danh Mục */
+
+
+/* ========================================= */
+/* 5. FOOTER (Chân trang)                    */
+/* ========================================= */
+.footer-custom {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: #d1d1d1;
+}
+.footer-top-bar {
+    background-color: #f2f2f2;
+    color: #000;
+    padding: 20px 0;
+    border-bottom: 2px solid #ddd;
+}
+.footer-top-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+.footer-top-item i {
+    font-size: 30px;
+    color: #333;
+}
+.footer-top-item h5 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+}
+.footer-top-item p {
+    font-size: 13px;
+    margin: 0;
+    color: #555;
+}
+
+.footer-main {
+    background-color: #111111;
+    padding-top: 40px;
+    padding-bottom: 30px;
+    border-top: 5px solid #000;
+}
+
+.footer-main h5 {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.footer-logo-title {
+    color: #fff;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 15px;
+}
+
+.footer-link {
+    color: #b3b3b3;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 12px;
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+.footer-link:hover {
+    color: #ffffff;
+}
+
+.email-subscribe-box {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+.email-subscribe-box input {
+    background-color: #333;
+    border: none;
+    padding: 12px 15px;
+    color: #fff;
+    width: 100%;
+    outline: none;
+    font-size: 13px;
+}
+.email-subscribe-box button {
+    background-color: #444;
+    border: none;
+    padding: 12px 20px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.email-subscribe-box button:hover {
+    background-color: #666;
+}
+
+.social-btn {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.social-btn:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+.hotline-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    vertical-align: middle;
+}
+
+.border-right-dark {
+    border-right: 1px solid #333;
+}
+
+.payment-icons img {
+    height: 25px;
+    margin-right: 10px;
+    background-color: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Toast Notification Style */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.toast-item {
+    min-width: 300px;
+    max-width: 450px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: toast-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.3s ease;
+    border-left: 5px solid #000;
+}
+
+.toast-item.hide {
+    animation: toast-fade-out 0.4s forwards;
+}
+
+.toast-item.success { border-left-color: #28a745; }
+.toast-item.error { border-left-color: #dc3545; }
+.toast-item.warning { border-left-color: #ffc107; }
+.toast-item.info { border-left-color: #17a2b8; }
+
+.toast-item i {
+    font-size: 20px;
+}
+.toast-success i { color: #28a745; }
+.toast-error i { color: #dc3545; }
+.toast-warning i { color: #ffc107; }
+
+.toast-message {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    flex-grow: 1;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+}
+.toast-close:hover { color: #333; }
+
+@keyframes toast-slide-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toast-fade-out {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(20px); opacity: 0; }
+}
+
+
+/* Out of stock styles */
+.out-of-stock-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 10px 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 4px;
+}
+
+.product-img-wrap.out-of-stock img {
+    filter: grayscale(100%) opacity(0.6);
+}
+
+.variant-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+    border-color: #ddd !important;
+    background-color: #f8f9fa !important;
+    color: #999 !important;
+}
+
+.variant-btn.disabled:hover {
+    border-color: #ddd !important;
+}
+
+.variant-btn.disabled .dot-12 {
+    filter: grayscale(100%);
+}

@@ -1,0 +1,113 @@
+### I. TÓM TẮT ĐỀ TÀI VÀ LỜI MỞ ĐẦU
+
+Ngày nay công nghệ thông tin đã có những bước phát triển mạnh mẽ. Máy tính điện tử không còn là một phương tiện quý hiếm mà đang ngày càng trở thành một công cụ làm việc và giải trí thông dụng của con người. Công nghệ thông tin được áp dụng trong tất cả các lĩnh vực kinh tế và chính trị cũng như xã hội.
+
+Cùng với xu hướng phát triển của các nền tảng mạng xã hội và thương mại điện tử thì việc sử dụng mạng để mua sắm và tìm kiếm thông tin ngày càng phổ biến. Truy cập mạng giúp chúng ta có được một kho thông tin khổng lồ và dịch vụ tiện ích phục vụ nhu cầu hằng ngày chỉ với những thao tác đơn giản.
+
+Nhận thức được nhu cầu mua sắm và giải trí trong cuộc sống cũng như nhu cầu chuyển đổi số của các doanh nghiệp nên em đã quyết định chọn đề tài Xây dựng trang web bán hàng thời trang tại cơ quan mà em đang thực tập là Công ty cổ phần NOLISHIP chi nhánh An Giang.
+
+Từ những vấn đề trên em đã áp dụng những kiến thức đã học về xây dựng ứng dụng với ngôn ngữ lập trình C# và hệ quản trị cơ sở dữ liệu để xây dựng một hệ thống bán hàng hoàn chỉnh. Trang web giúp cho người quản lý dễ dàng kiểm soát được lượng hàng hóa và các phân loại sản phẩm như màu sắc hay kích thước cũng như thống kê doanh thu và quản lý đơn hàng hiệu quả. Đặc biệt hệ thống giúp cho khách hàng có thể tìm kiếm sản phẩm và thực hiện thanh toán trực tuyến một cách dễ dàng và nhanh chóng.
+
+---
+
+### II. GIỚI THIỆU ĐỀ TÀI
+
+1. Lý do chọn đề tài:
+Trong bối cảnh chuyển đổi số thì nhu cầu kinh doanh và mua sắm trực tuyến ngày càng tăng cao và đòi hỏi các cửa hàng phải sở hữu hệ thống trang web chuyên nghiệp để quảng bá sản phẩm với chi phí tối ưu và hiệu quả cao. Trang web không chỉ giúp doanh nghiệp kết nối với khách hàng mọi lúc mọi nơi mà còn giải quyết triệt để các hạn chế của cửa hàng truyền thống như:
+- Tự động hóa quy trình quản lý thông tin khách hàng và cập nhật giá cả linh hoạt.
+- Quản lý kho hàng chính xác và kiểm soát tồn kho theo từng thuộc tính màu sắc hoặc kích cỡ.
+- Phản hồi khách hàng nhanh chóng và xây dựng hình ảnh thương hiệu chuyên nghiệp.
+- Mở rộng phạm vi kinh doanh không giới hạn về thời gian và địa lý.
+
+2. Mục tiêu của đề tài:
+Xây dựng một hệ thống trang web bán hàng thời trang trực tuyến hoàn thiện và đáp ứng các tiêu chuẩn hiện đại:
+- Giao diện người dùng: Trải nghiệm mua sắm mượt mà và tìm kiếm thông minh cùng với đặt hàng và thanh toán trực tuyến thuận tiện.
+- Giao diện quản trị: Cung cấp các công cụ quản lý nghiệp vụ bán hàng và kho hàng cùng với thống kê báo cáo chi tiết cho chủ cửa hàng.
+
+3. Phạm vi và đối tượng nghiên cứu:
+- Phạm vi nghiên cứu: Tìm hiểu quy trình nghiệp vụ bán lẻ thời trang và phương thức quản lý sản phẩm nhiều thuộc tính cũng như quy trình xử lý đơn hàng và tích hợp cổng thanh toán trực tuyến.
+- Đối tượng nghiên cứu:
+  - Hệ thống: Trang web thương mại điện tử.
+  - Công nghệ áp dụng: Ngôn ngữ C# và các công nghệ lập trình web hiện đại kết hợp với cơ sở dữ liệu SQL Server.
+  - Đối tượng khách hàng: Nam giới và tập trung vào phân khúc giới trẻ với mức thu nhập trung bình.
+
+### III. TỔNG QUAN HỆ THỐNG
+
+1. Mô tả chung hệ thống:
+Hệ thống là một nền tảng trang web bán hàng thời trang hiện đại được xây dựng theo mô hình máy chủ và máy khách:
+- Phía máy chủ: Cung cấp các dịch vụ xử lý logic nghiệp vụ và quản lý cơ sở dữ liệu cũng như bảo mật.
+- Phía khách hàng: Hiển thị giao diện tương tác mượt mà cho người dùng và bảng điều khiển quản trị cho người quản lý.
+Hệ thống hỗ trợ quy trình mua hàng khép kín từ khâu tìm kiếm sản phẩm đến giỏ hàng và thanh toán trực tuyến cũng như theo dõi lịch sử giao dịch.
+
+2. Đối tượng sử dụng:
+- Khách hàng chưa có tài khoản: Xem sản phẩm và tìm kiếm cũng như lọc theo thương hiệu hoặc đăng ký tài khoản mới.
+- Khách hàng có tài khoản: Đăng nhập và mua hàng cũng như quản lý giỏ hàng và thanh toán trực tuyến cùng với xem lịch sử mua hàng.
+- Quản trị viên: Quản lý toàn bộ hệ thống gồm sản phẩm và đơn hàng cùng với thống kê và người dùng.
+
+3. Phạm vi ứng dụng:
+Ứng dụng được thiết kế cho các cửa hàng bán quần áo và thời trang nam cũng như phụ kiện kinh doanh trên nền tảng mạng.
+
+---
+
+### IV. PHÂN TÍCH YÊU CẦU HỆ THỐNG
+
+1. Yêu cầu chức năng:
+- Người dùng:
+  - Đăng ký và đăng nhập cùng với quản lý hồ sơ cá nhân.
+  - Tìm kiếm sản phẩm nhanh và lọc sản phẩm đa năng theo loại hoặc thương hiệu.
+  - Xem chi tiết sản phẩm theo màu sắc hoặc kích cỡ và kiểm tra tồn kho thực tế.
+  - Quản lý giỏ hàng thông minh và tự động đồng bộ sau khi đăng nhập.
+  - Thanh toán trực tuyến an toàn.
+  - Theo dõi trạng thái và lịch sử đơn hàng cũng như chủ động hủy đơn hàng khi mới đặt.
+- Người quản trị:
+  - Quản lý sản phẩm và quản lý ảnh cùng các biến thể chi tiết.
+  - Quản lý danh mục và thương hiệu.
+  - Quản lý kho hàng và lọc thêm nhanh các thuộc tính màu sắc hoặc kích cỡ.
+  - Xử lý đơn hàng và theo dõi danh sách đơn hàng cùng trạng thái giao hàng.
+  - Thống kê báo cáo và xem biểu đồ doanh thu cũng như số lượng đơn hàng.
+  - Quản lý người dùng và phân quyền.
+
+2. Phân quyền người sử dụng:
+Hệ thống được thiết kế với cơ chế phân quyền chặt chẽ:
+- Quản trị viên: Toàn quyền quản lý mọi chức năng trong hệ thống.
+- Nhân viên: Hỗ trợ quản lý đơn hàng và cập nhật sản phẩm.
+- Khách hàng: Thực hiện các chức năng mua sắm và quản lý cá nhân nhưng không được phép đặt hàng khi sử dụng tài khoản quản trị.
+- Khách vãng lai: Chỉ có quyền xem và tìm kiếm thông tin chung.
+
+---
+
+### BÁO CÁO TÌNH TRẠNG DỰ ÁN
+Cập nhật ngày 16 tháng 04 năm 2026
+
+1. Tổng hợp các Tính năng:
+
+- Hệ thống Khách hàng:
+  - Trang chủ: Hình ảnh quảng cáo và danh mục nổi bật cùng với sản phẩm mới.
+  - Danh mục sản phẩm: Xem danh sách sản phẩm và lọc theo thương hiệu hoặc loại sản phẩm.
+  - Chi tiết sản phẩm: Chọn màu sắc hoặc kích thước và kiểm tra tồn kho.
+  - Tài khoản: Đăng nhập và đăng ký cũng như đăng xuất.
+  - Hồ sơ người dùng: Cập nhật thông tin cá nhân và đổi mật khẩu cùng với xem lịch sử đơn hàng.
+  - Giỏ hàng: Đồng bộ tự động sau khi đăng nhập.
+  - Thanh toán: Nhập thông tin giao hàng và tích hợp thanh toán trực tuyến.
+  - Tìm kiếm: Tìm nhanh sản phẩm từ thanh công cụ.
+  - Chính sách và Hỗ trợ: Các trang hướng dẫn và chính sách bảo mật cùng với điều khoản dịch vụ và bản đồ cửa hàng.
+
+- Hệ thống Quản trị:
+  - Thống kê: Xem doanh thu và đơn hàng theo thời gian thực.
+  - Quản lý Sản Phẩm: Thêm hoặc sửa hoặc xóa sản phẩm cùng với quản lý ảnh.
+  - Lọc thuộc tính thông minh: Tự động lọc màu sắc hoặc kích cỡ theo loại sản phẩm.
+  - Thêm nhanh thuộc tính: Cho phép tạo mới màu sắc hoặc cỡ ngay trong cửa sổ quản lý.
+  - Quản lý Đơn hàng: Theo dõi trạng thái và chi tiết đơn hàng.
+  - Quản lý Người dùng: Phân quyền giữa quản trị và nhân viên cũng như khách hàng.
+  - Quản lý Danh mục và Thương hiệu.
+
+---
+
+2. Những công việc đã hoàn thành gần đây:
+- Cập nhật trang Hàng mới về: Chuyển đổi bộ lọc từ dữ liệu cố định sang dữ liệu từ hệ thống.
+- Hoàn thiện các trang chính sách: Bổ sung đầy đủ nội dung cho trang Chính sách bảo mật và Điều khoản dịch vụ.
+- Tích hợp bản đồ: Hiển thị vị trí cửa hàng qua bản đồ điện tử chính xác.
+- Tối ưu hóa chân trang: Loại bỏ các liên kết không còn sử dụng và các tính năng chưa hoàn thiện để tăng tính chuyên nghiệp.
+- Ràng buộc đặt hàng: Cập nhật quy tắc không cho phép tài khoản Quản trị viên thực hiện mua hàng nhằm đảm bảo tính hợp lý của quy trình.
+- Tính năng người dùng tự hủy đơn: Cho phép khách hàng có thể hủy các đơn hàng đang trong trạng thái chờ duyệt.
+- Đồng bộ tên gọi: Sửa đổi các tên gọi trạng thái đơn hàng để thống nhất giữa biểu đồ thống kê và danh sách quản lý.

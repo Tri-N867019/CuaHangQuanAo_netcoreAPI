@@ -1,0 +1,102 @@
+### II. ĐẶT VẤN ĐỀ
+
+2.1. Đặt vấn đề
+
+2.1.1. Bối cảnh xuất hiện đề tài:
+Sự bùng nổ của cuộc cách mạng công nghiệp 4.0 cùng với tác động mạnh mẽ của chuyển đổi số đã làm thay đổi hoàn toàn cục diện kinh doanh bán lẻ toàn cầu. Ngành thời trang, với đặc thù thay đổi nhanh chóng về xu hướng và thị hiếu, đòi hỏi các doanh nghiệp phải có sự hiện diện mạnh mẽ trên không gian mạng. Người tiêu dùng hiện nay có xu hướng ưu tiên các nền tảng mua sắm trực tuyến vì tính tiện lợi, đa dạng và tốc độ. Tại Việt Nam, thương mại điện tử đang trở thành kênh phân phối chủ lực, việc xây dựng một hệ thống bán hàng tối ưu là bước đi chiến lược để doanh nghiệp tồn tại và phát triển trong kỷ nguyên số.
+
+2.1.2. Đặt vấn đề:
+Dù nhu cầu mua sắm trực tuyến tăng cao, nhiều hệ thống bán sỉ và lẻ hiện nay vẫn gặp các vướng mắc về quản lý tồn kho thiếu chính xác, quy trình đặt hàng rườm rà và tính bảo mật chưa cao. Bài toán đặt ra cho đề tài là xây dựng một hệ thống website "Cửa hàng thời trang NT Clothing" có khả năng xử lý nghiệp vụ phức tạp: từ quản lý đa dạng biến thể sản phẩm (màu sắc, kích cỡ), tự động hóa quá trình trừ kho khi đặt hàng, tích hợp thanh toán điện tử an toàn đến cung cấp giao diện quản trị (Admin Dashboard) trực quan giúp nhà quản lý theo dõi doanh thu và vận hành cửa hàng một cách khoa học nhất.
+
+2.1.3. Phạm vi đề tài:
+- Đối tượng người dùng: Phân quyền rõ rệt giữa khách hàng chưa có tài khoản và khách hàng thành viên cùng với nhân viên và quản trị viên.
+- Chức năng chính:
+  + Người dùng: Đăng ký và đăng nhập cùng với xem sản phẩm và tìm kiếm cũng như lọc sản phẩm và giỏ hàng cùng với thanh toán trực tuyến toàn bộ đơn hàng và xem lịch sử đơn hàng cũng như chủ động hủy đơn hàng mới đặt.
+  + Người quản trị: Quản lý sản phẩm và các thuộc tính màu sắc hoặc kích cỡ cùng với quản lý tài khoản và quản lý đơn hàng cũng như kho hàng và thống kê báo cáo doanh thu.
+
+2.1.4. Phương pháp nghiên cứu:
+- Nghiên cứu tài liệu: Tìm hiểu các tài liệu về quy trình nghiệp vụ bán hàng thời trang và quản lý kho cùng các tiêu chuẩn bảo mật trong thương mại điện tử.
+- Phân tích hệ thống: Sử dụng các sơ đồ thiết kế hệ thống để mô hình hóa yêu cầu và cấu trúc dữ liệu của hệ thống.
+- Thực nghiệm: Xây dựng phiên bản thử nghiệm và kết nối phần xử lý máy chủ với phần giao diện người dùng cũng như thực hiện kiểm thử các chức năng cốt lõi như đặt hàng và thanh toán.
+- Khảo sát công nghệ: Nghiên cứu cách triển khai dịch vụ trao đổi dữ liệu bằng ngôn ngữ C# và cách tích hợp cổng thanh toán trực tuyến một cách an toàn.
+
+2.1.5. Cơ sở lý thuyết:
+- Công nghệ giao diện: Sử dụng các ngôn ngữ lập trình web phổ biến để xây dựng giao diện tương thích tốt trên nhiều kích thước màn hình.
+- Công nghệ máy chủ: Sử dụng ngôn ngữ lập trình C# và nền tảng hiện đại để xây dựng hệ thống xử lý tập trung giúp dễ dàng mở rộng và bảo trì.
+- Kiến trúc dữ liệu: Sử dụng hệ quản trị cơ sở dữ liệu SQL Server cùng với các thư viện hỗ trợ để quản lý dữ liệu quan hệ nhằm đảm bảo tính toàn vẹn của dữ liệu sản phẩm và đơn hàng.
+- Thanh toán trực tuyến: Tích hợp dịch vụ thanh toán trực tuyến uy tín để thực hiện các giao dịch không dùng tiền mặt.
+- Bảo mật hệ thống: Áp dụng các tiêu chuẩn xác thực hiện đại để nhận diện người dùng và bảo vệ các dữ liệu nhạy cảm.
+
+---
+
+### III. PHÂN TÍCH YÊU CẦU HỆ THỐNG
+
+1. Yêu cầu chức năng:
+- Mô tả các chức năng chính của hệ thống:
+  + Người dùng: Đăng ký và đăng nhập cùng với xem danh sách sản phẩm và tìm kiếm cũng như lọc sản phẩm theo loại hoặc thương hiệu hoặc màu sắc hoặc kích cỡ hoặc giá cả cũng như xem chi tiết sản phẩm và quản lý giỏ hàng cùng với thanh toán trực tuyến toàn bộ danh sách sản phẩm trong giỏ và xem lịch sử mua hàng.
+  + Người quản trị: Quản lý sản phẩm và các thuộc tính màu sắc hoặc kích cỡ cùng với quản lý danh mục và thương hiệu cũng như quản lý tài khoản và phân quyền cùng với quản lý đơn hàng và thống kê báo cáo doanh thu.
+3.1.5. Phân quyền người dùng:
+Hệ thống thiết lập cơ chế phân quyền nghiêm ngặt dựa trên vai trò để đảm bảo tính bảo mật và đúng quy trình nghiệp vụ:
+- Khách vãng lai: Chỉ được phép xem thông tin sản phẩm và tìm kiếm công khai, không có quyền tương tác với giỏ hàng hay thanh toán.
+- Khách hàng: Có đầy đủ quyền hạn cá nhân như đồng bộ giỏ hàng, thực hiện quy trình đặt hàng và thanh toán trực tuyến, theo dõi lịch sử mua hàng và tự hủy đơn hàng trong trạng thái chờ duyệt.
+- Nhân viên: Tập trung vào các tác nghiệp vận hành như xác nhận đơn hàng, điều phối trạng thái vận chuyển và quản lý số lượng tồn kho. Quyền hạn này bị giới hạn không thể truy cập vào các báo cáo tài chính hoặc danh sách người dùng.
+- Quản trị viên: Nắm quyền kiểm soát toàn diện hệ thống, bao gồm quản lý người dùng, thiết lập phân quyền, cấu hình thông tin cửa hàng và theo dõi các báo cáo thống kê doanh thu chuyên sâu. Quản trị viên bị chặn tính năng đặt hàng trực tiếp để đảm bảo tính minh bạch của kho hàng.
+
+2. Yêu cầu phi chức năng:
+- Giao diện thân thiện và hiển thị tốt trên cả máy tính lẫn điện thoại.
+- Tốc độ phản hồi nhanh và dữ liệu xử lý mượt mà.
+- Bảo mật thông tin qua việc mã hóa mật khẩu và các phương thức xác thực an toàn.
+
+---
+
+### IV. THIẾT KẾ HỆ THỐNG
+
+1. Thiết kế tổng thể:
+- Hệ thống được xây dựng theo kiến trúc máy chủ và máy khách.
+- Phía máy chủ cung cấp các dịch vụ trao đổi dữ liệu giúp giao diện khách hàng có thể cập nhật thông tin liên tục.
+
+2. Thiết kế cơ sở dữ liệu:
+Cơ sở dữ liệu bao gồm các thực thể chính để quản lý nghiệp vụ bán lẻ thời trang:
+- Sản phẩm mẫu: Lưu thông tin cơ bản của áo hoặc quần.
+- Loại và thương hiệu: Phân loại sản phẩm theo đặc tính và nhãn hàng.
+- Hóa đơn và chi tiết hóa đơn: Quản lý đơn hàng và doanh thu.
+- Phiếu nhập hàng và chi tiết phiếu nhập hàng: Quản lý nhập xuất kho.
+- Nhà cung cấp: Thông tin đối tác nhập hàng.
+- Người dùng và phân quyền: Quản lý tài khoản và quyền hạn truy cập.
+
+3. Thiết kế giao diện:
+Hệ thống bao gồm các trang giao diện chính:
+- Trang chủ: Hình ảnh quảng cáo và sản phẩm nổi bật.
+- Danh sách sản phẩm: Hiển thị bộ sưu tập và các công cụ lọc tìm kiếm.
+- Chi tiết sản phẩm: Chọn màu sắc hoặc kích cỡ và xem mô tả cùng hình ảnh.
+- Giỏ hàng: Nơi tập trung toàn bộ sản phẩm đã chọn, hệ thống mặc định thanh toán cho tất cả mặt hàng trong danh sách mà không cần chọn riêng lẻ.
+- Thanh toán: Tiếp nhận toàn bộ đơn hàng từ giỏ hàng để người dùng nhập thông tin giao nhận và lựa chọn phương thức thanh toán.
+
+4. Sơ đồ thiết kế hệ thống:
+- Sơ đồ tác nhân và chức năng: Mô tả tương tác giữa quản trị viên và khách hàng đối với các chức năng của hệ thống.
+- Sơ đồ quan hệ dữ liệu: Mô tả mối quan hệ giữa sản phẩm và hóa đơn cùng với người dùng trong cơ sở dữ liệu.
+- Sơ đồ luồng dữ liệu: Mô tả cách thức trao đổi thông tin giữa giao diện và máy chủ cũng như cơ sở dữ liệu.
+
+---
+
+### V. TỔNG KẾT KIỂM TRA HỆ THỐNG
+- Hệ thống cốt lõi đã hoàn thiện đầy đủ các chức năng mua sắm và thanh toán cùng với quản trị.
+- Thanh toán trực tuyến đã cấu hình xong và bộ lọc sản phẩm hoạt động ổn định cũng như bảng điều khiển quản trị thống kê đầy đủ doanh thu.
+- Các quy định về quyền hạn như chặn quản trị viên đặt hàng và cho phép khách hàng hủy đơn đã được kiểm tra và hoạt động chính xác.
+
+---
+
+### VI. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+
+1. Kết luận:
+Đề tài xây dựng "Hệ thống quản lý và bán hàng thời trang trực tuyến NT Clothing" đã đạt được các mục tiêu đề ra ban đầu. Hệ thống cung cấp một giải pháp thương mại điện tử hoàn chỉnh, từ giao diện người dùng hiện đại, hệ thống giỏ hàng và thanh toán trực tuyến đến trang quản trị chuyên sâu. Các tính năng cốt lõi như quản lý biến thể sản phẩm, tự động cập nhật tồn kho và phân quyền người dùng đã được triển khai ổn định, giúp tối ưu hóa quy trình bán hàng và nâng cao trải nghiệm khách hàng.
+
+2. Hướng phát triển:
+Trong tương lai, hệ thống có thể được nâng cấp và mở rộng theo các hướng sau:
+- Tích hợp trí tuệ nhân tạo (AI): Xây dựng tính năng gợi ý sản phẩm thông minh dựa trên lịch sử xem hàng và sở thích của người dùng để tăng tỷ lệ chuyển đổi.
+- Phát triển ứng dụng di động: Triển khai ứng dụng (App) trên nền tảng Android và iOS để tiếp cận khách hàng tốt hơn thông qua các thông báo đẩy (Push Notifications).
+- Nâng cấp hệ thống báo cáo: Bổ sung các biểu đồ phân tích sâu về hành vi khách hàng, bản đồ nhiệt (Heatmap) và dự báo xu hướng tiêu dùng theo mùa.
+- Tự động hóa chăm sóc khách hàng: Tích hợp Chatbot AI để hỗ trợ giải đáp thắc mắc của khách hàng 24/7 và hệ thống gửi email marketing tự động.
+- Chương trình khách hàng thân thiết: Triển khai hệ thống tích điểm, phân hạng thành viên và các chương trình khuyến mãi mã giảm giá tự động.
+
+

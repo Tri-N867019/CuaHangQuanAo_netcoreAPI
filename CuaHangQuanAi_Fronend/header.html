@@ -1,0 +1,70 @@
+<!-- Thanh Menu Responsive -->
+<header class="bg-white border-bottom shadow-sm sticky-top">
+    <!-- Navbar Bootstrap 5 Offcanvas -->
+    <nav class="navbar navbar-expand-lg bg-white px-3 py-2">
+        <div class="d-flex w-100 align-items-center">
+            
+            <!-- MOBILE: Nút Hamburger 3 Gạch Bên Trái -->
+            <button class="navbar-toggler border-0 shadow-none d-lg-none p-0 me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHeader">
+                <i class="bi bi-list fs-1 text-dark"></i>
+            </button>
+            
+            <!-- LOGO: Luôn Nằm Ở Bố Cục Chuẩn Xác -->
+            <a href="index.html" class="navbar-brand m-0 fw-bolder text-dark" style="font-size: clamp(22px, 2.5vw, 28px); letter-spacing: 2px;">
+                NT Clothing
+            </a>
+
+            <!-- OFFCANVAS: Menu Chứa Các Link Danh Mục -->
+            <div class="offcanvas offcanvas-start border-0" tabindex="-1" id="offcanvasHeader" style="flex-grow: 1;">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title fw-bold" style="letter-spacing: 1px;">NT CLOTHING</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas"></button>
+                </div>
+                
+                <div class="offcanvas-body align-items-center">
+                    <!-- Form Tìm kiếm Phụ Hiện Trên Mobile -->
+                    <form class="d-flex d-lg-none mb-4 mt-2" id="form-timkiem-mobile">
+                        <input type="text" class="form-control rounded-0 shadow-none border-secondary" placeholder="Tìm kiếm..." style="font-size: 14px;">
+                        <button class="btn btn-dark rounded-0 px-3"><i class="bi bi-search"></i></button>
+                    </form>
+
+                    <!-- NHÓM MENU CHÍNH -->
+                    <ul class="navbar-nav mx-auto text-lg-center flex-lg-nowrap justify-content-center" id="menu-danhmuc-header">
+                        <li class="nav-item"><a class="nav-link text-dark fw-bold px-lg-3" href="index.html">TRANG CHỦ</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger fw-bold px-lg-3" href="hang-moi-ve.html">HÀNG MỚI VỀ</a></li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark fw-bold px-lg-3 dropdown-toggle" href="#" id="thuongHieuDropdown" data-bs-toggle="dropdown">THƯƠNG HIỆU</a>
+                            <ul class="dropdown-menu border-0 shadow-sm" id="menu-thuonghieu-header">
+                               <li><a class="dropdown-item">Đang tải...</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item"><a class="nav-link fw-bold px-lg-3 text-danger" href="san-pham.html?isSale=true">SALE</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Header Tools -->
+            <div class="header-tools d-flex align-items-center ms-auto" style="position: relative; z-index: 9999 !important;">
+                
+                <!-- Tìm kiếm Desktop -->
+                <div class="d-none d-lg-flex align-items-center me-3">
+                    <form class="d-flex" id="form-timkiem">
+                        <input type="text" class="form-control form-control-sm rounded-0 shadow-none border-secondary" placeholder="Tìm kiếm..." id="input-timkiem" style="max-width: 130px; font-size: 13px;">
+                        <button class="btn btn-sm btn-dark rounded-0 px-2" type="submit"><i class="bi bi-search fs-12"></i></button>
+                    </form>   
+                </div>
+
+                <!-- User Menu Container -->
+                <div id="user-menu-container" style="position: relative;"></div>
+
+                <!-- Cart Link -->
+                <a href="gio-hang.html" id="header-cart-link" class="text-dark fs-5 position-relative ms-3">
+                    <i class="bi bi-bag"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count-badge" style="font-size: 0.6rem;">0</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
