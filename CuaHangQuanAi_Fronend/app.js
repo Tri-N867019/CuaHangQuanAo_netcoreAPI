@@ -6,11 +6,11 @@
    ========================================================================== */
 
 // 1. CẤU HÌNH & XÁC THỰC
-const API_BASE_URL = 'https://localhost:7197';
+const API_BASE_URL = 'https://nt-clothing.onrender.com';
 
 function authFetch(url, options = {}) {
-    const fullUrl = (url.startsWith('/api') || url.startsWith('api')) 
-        ? `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}` 
+    const fullUrl = (url.startsWith('/api') || url.startsWith('api'))
+        ? `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`
         : url;
 
     const token = localStorage.getItem('token');
@@ -32,7 +32,7 @@ function showToast(message, type = 'success') {
 
     const toast = document.createElement('div');
     toast.className = `toast-item ${type}`;
-    
+
     // Icon mapping
     const icons = {
         success: 'bi-check-circle-fill text-success',
@@ -58,13 +58,13 @@ function showToast(message, type = 'success') {
 }
 
 // Ghi đè alert() mặc định để tự động dùng Toast
-window.alert = function(msg) {
+window.alert = function (msg) {
     // Nhận diện một số từ khóa để đổi loại thông báo
     let type = 'info';
     if (msg.toLowerCase().includes('thành công') || msg.toLowerCase().includes('cảm ơn')) type = 'success';
     if (msg.toLowerCase().includes('lỗi') || msg.toLowerCase().includes('thất bại') || msg.toLowerCase().includes('không')) type = 'error';
     if (msg.toLowerCase().includes('cảnh báo') || msg.toLowerCase().includes('chú ý') || msg.toLowerCase().includes('hết')) type = 'warning';
-    
+
     showToast(msg, type);
 };
 
@@ -89,7 +89,7 @@ function layDanhSachSanPham() {
             const mauId = up.get('mauId');
 
             let dsHienThi = data;
-            
+
             // Bộ lọc dữ liệu
             if (isSale === 'true') dsHienThi = dsHienThi.filter(sp => sp.khuyenMai > 0);
             if (minPrice) dsHienThi = dsHienThi.filter(sp => sp.giaBan >= Number(minPrice));
@@ -119,12 +119,12 @@ function layDanhSachSanPham() {
                 const giaGiam = sp.giaBan - km;
                 const isOutOfStock = (sp.soLuong ?? 0) <= 0;
 
-                const badge = isSaleItem 
-                    ? `<div class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 fs-10 fw-bold z-1">-${((km/sp.giaBan)*100).toFixed(0)}%</div>`
+                const badge = isSaleItem
+                    ? `<div class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 fs-10 fw-bold z-1">-${((km / sp.giaBan) * 100).toFixed(0)}%</div>`
                     : (sp.id % 2 === 0 ? `<div class="position-absolute top-0 start-0 bg-dark text-white px-2 py-1 fs-10 fw-bold z-1">NEW</div>` : '');
 
-                const outOfStockOverlay = isOutOfStock 
-                    ? `<div class="out-of-stock-badge">HẾT HÀNG</div>` 
+                const outOfStockOverlay = isOutOfStock
+                    ? `<div class="out-of-stock-badge">HẾT HÀNG</div>`
                     : '';
 
                 const giaHtml = isSaleItem
@@ -346,7 +346,7 @@ function layChiTietSanPham(id) {
             const sizes = [...new Map(sp.cacBienThe.map(b => [b.tenSize, b])).values()].filter(s => s.tenSize !== "undefined" && s.tenSize !== null);
             const colors = [...new Map(sp.cacBienThe.map(b => [b.tenMau, b])).values()].filter(c => c.tenMau !== "undefined" && c.tenMau !== null);
 
-            let galleryHtml = sp.danhSachAnh?.length 
+            let galleryHtml = sp.danhSachAnh?.length
                 ? `<div class="mb-3 bg-light d-flex justify-content-center border" style="height:550px">
                         <img id="main-product-image" src="${sp.danhSachAnh[0]}" class="img-fluid h-100 object-fit-contain cursor-zoom" alt="${sp.ten}">
                    </div>
@@ -355,16 +355,16 @@ function layChiTietSanPham(id) {
                    </div>`
                 : `<div class="p-5 bg-light text-center border text-secondary h-100 d-flex flex-column justify-content-center"><i class="bi bi-image fs-60"></i><p>Chưa có hình ảnh</p></div>`;
 
-            const sizeHtml = sizes.length 
+            const sizeHtml = sizes.length
                 ? sizes.map(s => {
                     const isSizeOutOfStock = sp.cacBienThe.filter(b => b.tenSize === s.tenSize).every(b => (b.soLuongTon ?? 0) <= 0);
                     return `<button class="variant-btn me-2 mb-2 ${isSizeOutOfStock ? 'disabled' : ''}" 
                             onclick="${isSizeOutOfStock ? '' : `selectVariant(this,'size')`}" 
                             data-size="${s.tenSize}" ${isSizeOutOfStock ? 'disabled' : ''}>${s.tenSize}</button>`;
-                }).join('') 
+                }).join('')
                 : '<p class="fst-italic text-secondary fs-14">Freesize</p>';
 
-            const colorHtml = colors.length 
+            const colorHtml = colors.length
                 ? colors.map(c => {
                     const isColorOutOfStock = sp.cacBienThe.filter(b => b.tenMau === c.tenMau).every(b => (b.soLuongTon ?? 0) <= 0);
                     const code = c.maMau || "#ccc";
@@ -375,11 +375,11 @@ function layChiTietSanPham(id) {
                             <span class="dot-12 rounded-circle me-2 border" style="background:${code}; width:12px; height:12px; display:inline-block;"></span>
                             <span>${c.tenMau}</span>
                         </button>`;
-                }).join('') 
+                }).join('')
                 : '<p class="fst-italic text-secondary fs-14">Một màu duy nhất</p>';
 
             const km = sp.khuyenMai || 0;
-            const giaHtml = km > 0 
+            const giaHtml = km > 0
                 ? `<span class="text-secondary text-decoration-line-through me-3 fs-18">${sp.giaBan.toLocaleString()}đ</span><span class="fs-4 fw-bolder text-danger">${(sp.giaBan - km).toLocaleString()}đ</span>`
                 : `<span class="fs-4 fw-bolder text-danger">${sp.giaBan?.toLocaleString() || 'Liên hệ'}đ</span>`;
 
@@ -547,7 +547,7 @@ function attachUserMenuActions() {
     container.onclick = (e) => {
         const item = e.target.closest('[data-action]'); if (!item) return;
         const act = item.dataset.action; e.preventDefault();
-        
+
         if (act === 'login') location.href = 'dang-nhap.html';
         else if (act === 'register') location.href = 'dang-ky.html';
         else if (act === 'profile') location.href = 'thong-tin-tai-khoan.html#profile';
@@ -561,14 +561,14 @@ function attachUserMenuActions() {
 function kiemTraDangNhap() {
     const token = localStorage.getItem('token');
     const container = document.getElementById('user-menu-container'); if (!container) return;
-    
+
     if (token) {
         const user = parseJwt(token);
         if (user && user.exp * 1000 > Date.now()) {
             const session = saveUserSessionFromToken(token);
             // Include "Nhân viên" with accents and other variations for robustness
             const isAdmin = ['Admin1', 'Admin', 'NhanVien', 'Nhân viên', 'QuanLyHeThong'].includes(session.role);
-            
+
             container.className = 'ms-lg-4 dropdown user-header-box';
             // Hiển thị trực tiếp Tên và Chức vụ ra Header để "thu nhỏ hay zoom đều hiện"
             container.innerHTML = `
@@ -591,7 +591,7 @@ function kiemTraDangNhap() {
             return;
         }
     }
-    
+
     container.innerHTML = `<a href="dang-nhap.html" class="text-dark fs-14 fw-bold d-flex align-items-center gap-2 text-decoration-none">
         <i class="bi bi-box-arrow-in-right fs-4"></i>
         <span>Đăng nhập</span>
@@ -605,7 +605,7 @@ async function showAccountInfoModal() {
         const res = await authFetch('/api/User/profile');
         if (!res.ok) return alert('Vui lòng đăng nhập lại');
         const u = await res.json();
-        
+
         const html = `
             <div class="modal fade" id="accountInfoModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
@@ -654,7 +654,7 @@ async function loadProfilePage() {
         const res = await authFetch('/api/User/profile');
         if (!res.ok) { if (res.status === 401) dangXuat(); throw new Error('Lỗi tải hồ sơ'); }
         const user = await res.json();
-        
+
         // Cập nhật Sidebar
         const nameEl = document.getElementById('profile-name'); if (nameEl) nameEl.innerText = user.hoVaTen || 'Người dùng';
         const roleEl = document.getElementById('profile-role'); if (roleEl) roleEl.innerText = user.role || 'Thành viên';
@@ -697,7 +697,7 @@ function initFilterListeners() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     await loadHeaderFooter(); updateCartBadge(); layDanhSachSanPham(); loadProfilePage();
-    
+
     // Filter Sale
     const chkSale = document.getElementById('filter-sale');
     if (chkSale) {
@@ -768,10 +768,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             };
 
             // Ràng buộc
-            if (data.hoVaTen.length < 2) return (msg.innerText = 'Họ tên ít nhất 2 ký tự!', msg.className='text-danger', msg.style.display='block');
-            if (!data.email.includes('@')) return (msg.innerText = 'Email không hợp lệ!', msg.className='text-danger', msg.style.display='block');
-            if (data.tenDangNhap.length < 4 || data.tenDangNhap.includes(' ')) return (msg.innerText = 'Tên đăng nhập ít nhất 4 ký tự, không chứa khoảng trắng!', msg.className='text-danger', msg.style.display='block');
-            if (data.matKhau.length < 6) return (msg.innerText = 'Mật khẩu ít nhất 6 ký tự!', msg.className='text-danger', msg.style.display='block');
+            if (data.hoVaTen.length < 2) return (msg.innerText = 'Họ tên ít nhất 2 ký tự!', msg.className = 'text-danger', msg.style.display = 'block');
+            if (!data.email.includes('@')) return (msg.innerText = 'Email không hợp lệ!', msg.className = 'text-danger', msg.style.display = 'block');
+            if (data.tenDangNhap.length < 4 || data.tenDangNhap.includes(' ')) return (msg.innerText = 'Tên đăng nhập ít nhất 4 ký tự, không chứa khoảng trắng!', msg.className = 'text-danger', msg.style.display = 'block');
+            if (data.matKhau.length < 6) return (msg.innerText = 'Mật khẩu ít nhất 6 ký tự!', msg.className = 'text-danger', msg.style.display = 'block');
 
             btn.disabled = true;
             try {
@@ -886,7 +886,7 @@ async function viewOrderDetail(id) {
 function renderPolicyContent() {
     const box = document.getElementById('policy-content'); if (!box) return;
     const id = new URLSearchParams(location.search).get('id') || 'gioi-thieu';
-    
+
     const data = {
         'gioi-thieu': { t: 'GIỚI THIỆU NT CLOTHING', c: '<p class="lead">NT Clothing - Nơi định hình phong cách quý ông hiện đại.</p><p>Sứ mệnh của chúng tôi là mang lại sự tự tin cho phái mạnh qua những thiết kế tối giản, tinh tế.</p>' },
         'giao-hang': { t: 'CHÍNH SÁCH GIAO HÀNG', c: '<p>Miễn phí vận chuyển cho đơn hàng từ 500.000đ.</p><ul class="fs-14"><li>Nội thành: 1-2 ngày</li><li>Tỉnh khác: 3-5 ngày</li></ul>' },
@@ -1057,7 +1057,7 @@ function openChangePasswordModal() {
         e.preventDefault();
         const msg = document.getElementById('change-pass-msg');
         const formData = new FormData(e.target);
-        
+
         const matKhauCu = formData.get('matKhauCu');
         const matKhauMoi = formData.get('matKhauMoi');
         const confirmMatKhauMoi = formData.get('confirmMatKhauMoi');
@@ -1095,7 +1095,7 @@ function openChangePasswordModal() {
                 msg.innerHTML = `<div class="text-danger mb-2 small fw-bold">${data.message || 'Sai mật khẩu cũ'}</div>`;
                 btn.disabled = false; btn.innerText = 'XÁC NHẬN ĐỔI';
             }
-        } catch (err) { 
+        } catch (err) {
             msg.innerHTML = `<div class="text-danger mb-2 small fw-bold">Lỗi kết nối hoặc sai mật khẩu cũ</div>`;
             btn.disabled = false; btn.innerText = 'XÁC NHẬN ĐỔI';
         }
