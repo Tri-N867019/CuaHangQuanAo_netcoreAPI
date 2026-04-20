@@ -1,34 +1,30 @@
-﻿# Sử dụng base image .NET 8 Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 8080
-
-# Sử dụng base image .NET 8 SDK để build code
+﻿# Sử dụng base image .NET 8 SDK để build code
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy toàn bộ các file .csproj của tất cả 4 project để Restore (Tải thư viện)
+# SỬA TẠI ĐÂY: Copy file csproj vào đúng thư mục làm việc của Docker
+# Cấu trúc: COPY "đường dẫn file từ máy" "đường dẫn trong docker"
 COPY ["CuaHangQuanAo/CuaHangQuanAo.API.csproj", "CuaHangQuanAo/"]
 COPY ["CuaHangQuanAo.Application/CuaHangQuanAo.Application.csproj", "CuaHangQuanAo.Application/"]
 COPY ["CuaHangQuanAo.Domain/CuaHangQuanAo.Domain.csproj", "CuaHangQuanAo.Domain/"]
 COPY ["CuaHangQuanAo.Infrastructure/CuaHangQuanAo.Infrastructure.csproj", "CuaHangQuanAo.Infrastructure/"]
 
-# Restore thư viện cho project chính (nó sẽ tự kéo các project con theo)
+# Restore
 RUN dotnet restore "CuaHangQuanAo/CuaHangQuanAo.API.csproj"
 
-# Copy toàn bộ mã nguồn còn lại vào Docker
+# Copy toàn bộ mã nguồn (Lệnh này sẽ copy từ thư mục Root Directory trên Render)
 COPY . .
 
-# Chuyển thư mục làm việc vào project API và tiến hành Build
+# Build dự án
 WORKDIR "/src/CuaHangQuanAo"
 RUN dotnet build "CuaHangQuanAo.API.csproj" -c Release -o /app/build
 
-# Publish (Đóng gói) dự án
+# Publish
 FROM build AS publish
 RUN dotnet publish "CuaHangQuanAo.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Chạy ứng dụng
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "CuaHangQuanAo.API.dll"]
