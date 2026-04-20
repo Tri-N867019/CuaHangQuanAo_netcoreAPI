@@ -904,7 +904,7 @@ function renderPolicyContent() {
 }
 
 // Khởi tạo các trang đặc thù
-// Khởi tạo các trang đặc thù
+
 if (location.pathname.includes('thong-tin-tai-khoan.html')) {
     loadProfilePage();
     loadOrderHistory();
