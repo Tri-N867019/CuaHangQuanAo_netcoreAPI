@@ -6,7 +6,61 @@
     <title>Giỏ hàng - NT Clothing</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
+    <style>
+        #address-map {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        #address-map-container {
+            height: 250px;
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 2px solid #eee;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        #address-map-container.verified { border-color: #10b981; }
+        #address-map-container.unverified { border-color: #ef4444; }
+        #address-map.verified {
+            border-color: #10b981;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+        }
+        #address-map.unverified {
+            border-color: #ef4444;
+        }
+        .verified-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 50px;
+            display: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .verified-badge.active {
+            display: inline-flex;
+            align-items: center;
+        }
+        .address-box {
+            transition: all 0.3s ease;
+        }
+        .address-box.invalid {
+            animation: shake 0.5s;
+            border-color: #ef4444;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
 </head>
 <body class="bg-light">
     <div id="app-header"></div>
@@ -22,8 +76,12 @@
     <div id="app-footer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
     <script>
+        let map, marker;
+        let isAddressVerified = false;
+
         async function renderCartPage() {
             const container = document.getElementById('cart-container');
             const token = localStorage.getItem('token');
@@ -138,8 +196,27 @@
                                         <input type="tel" class="form-control" name="SDTNhanHang" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Địa chỉ nhận hàng *</label>
-                                        <textarea class="form-control" name="diaChiGiaoHang" rows="2" required></textarea>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label mb-0 fw-bold">Địa chỉ nhận hàng *</label>
+                                            <span id="address-status-badge" class="badge bg-secondary">
+                                                <i class="bi bi-info-circle me-1"></i>Chưa kiểm tra bản đồ
+                                            </span>
+                                        </div>
+                                        <div class="input-group address-box" id="address-input-group">
+                                            <textarea class="form-control" name="diaChiGiaoHang" id="diaChiGiaoHang" rows="2" placeholder="Nhập địa chỉ (VD: Ấp, Xã, Phường...) hoặc chọn trên bản đồ" required oninput="onAddressInput()"></textarea>
+                                            <button type="button" class="btn btn-primary" id="btn-verify-address" onclick="verifyAddress()">
+                                                <i class="bi bi-geo-alt-fill me-1"></i> Kiểm tra
+                                            </button>
+                                        </div>
+                                        <div id="address-map-container" class="mt-3">
+                                            <div id="address-map"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <small class="text-muted fs-11"><i class="bi bi-info-circle me-1"></i>Kéo marker hoặc click bản đồ để chọn vị trí</small>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none fs-12 fw-bold" onclick="getCurrentLocation()">
+                                                <i class="bi bi-crosshair me-1"></i> Sử dụng vị trí của tôi
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Ghi chú</label>
@@ -172,6 +249,155 @@
             }
 
             updateSelectedTotal();
+            initAddressMap();
+        }
+
+        function initAddressMap() {
+            const mapContainer = document.getElementById('address-map');
+            if (!mapContainer) return;
+
+            // Vị trí mặc định (Trung tâm TP. Long Xuyên)
+            const defaultLat = 10.3759;
+            const defaultLng = 105.4325;
+
+            try {
+                map = L.map('address-map', {
+                    scrollWheelZoom: false // Tránh vô tình zoom khi cuộn trang
+                }).setView([defaultLat, defaultLng], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Thêm control để bật/tắt scroll zoom
+                map.on('focus', () => { map.scrollWheelZoom.enable(); });
+                map.on('blur', () => { map.scrollWheelZoom.disable(); });
+
+                marker = L.marker([defaultLat, defaultLng], { 
+                    draggable: true,
+                    title: "Kéo để chọn vị trí giao hàng"
+                }).addTo(map);
+
+                // Khi click bản đồ
+                map.on('click', async function(e) {
+                    const { lat, lng } = e.latlng;
+                    marker.setLatLng([lat, lng]);
+                    map.panTo([lat, lng]);
+                    await reverseGeocode(lat, lng);
+                });
+
+                // Khi kéo marker
+                marker.on('dragend', async function(e) {
+                    const { lat, lng } = marker.getLatLng();
+                    map.panTo([lat, lng]);
+                    await reverseGeocode(lat, lng);
+                });
+                
+                isAddressVerified = false; // Trạng thái tìm thấy trên bản đồ
+                updateVerificationUI();
+            } catch (e) {
+                console.error("Lỗi khởi tạo bản đồ:", e);
+                mapContainer.innerHTML = '<div class="alert alert-danger">Không thể tải bản đồ. Vui lòng kiểm tra kết nối mạng.</div>';
+            }
+        }
+
+        function onAddressInput() {
+            isAddressVerified = false;
+            updateVerificationUI();
+        }
+
+        async function getCurrentLocation() {
+            if (!navigator.geolocation) return alert("Trình duyệt của bạn không hỗ trợ định vị!");
+            
+            const btn = document.querySelector('[onclick="getCurrentLocation()"]');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang định vị...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    map.setView([latitude, longitude], 16);
+                    marker.setLatLng([latitude, longitude]);
+                    await reverseGeocode(latitude, longitude);
+                    btn.innerHTML = originalHtml;
+                },
+                (err) => {
+                    console.error(err);
+                    alert("Không thể lấy vị trí. Vui lòng cấp quyền truy cập vị trí cho trình duyệt.");
+                    btn.innerHTML = originalHtml;
+                }
+            );
+        }
+
+        async function verifyAddress() {
+            const address = document.getElementById('diaChiGiaoHang').value.trim();
+            if (!address || address.length < 3) {
+                alert("Vui lòng nhập địa chỉ (Ấp/Xã/Phường...) để kiểm tra!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-verify-address');
+            const mapEl = document.getElementById('address-map');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang tìm...';
+
+            try {
+                // Thêm "Việt Nam" để tìm kiếm chính xác hơn
+                const searchQuery = address.toLowerCase().includes("việt nam") ? address : address + ", Việt Nam";
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`);
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    const { lat, lon, display_name } = data[0];
+                    map.setView([lat, lon], 16);
+                    marker.setLatLng([lat, lon]);
+                    document.getElementById('diaChiGiaoHang').value = display_name;
+                    // Hiệu ứng thành công
+                    document.getElementById('address-map-container').className = 'mt-3 verified';
+                    isAddressVerified = true;
+                } else {
+                    isAddressVerified = false;
+                    alert("Gợi ý: Không tìm thấy vị trí chính xác trên bản đồ. Bạn hãy kiểm tra lại tên Ấp, Xã hoặc có thể cứ tiếp tục đặt hàng với địa chỉ đã nhập.");
+                    document.getElementById('address-map-container').className = 'mt-3 unverified';
+                }
+                updateVerificationUI();
+            } catch (error) {
+                console.error("Lỗi xác thực:", error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-geo-alt-fill me-1"></i> Kiểm tra';
+            }
+        }
+
+        async function reverseGeocode(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await response.json();
+                if (data && data.display_name) {
+                    document.getElementById('diaChiGiaoHang').value = data.display_name;
+                    isAddressVerified = true;
+                } else {
+                    isAddressVerified = false;
+                }
+            } catch (e) { isAddressVerified = false; }
+            updateVerificationUI();
+        }
+
+        function updateVerificationUI() {
+            const badge = document.getElementById('address-status-badge');
+            const mapEl = document.getElementById('address-map');
+            if (!badge) return;
+
+            if (isAddressVerified) {
+                badge.className = "badge bg-success";
+                badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Đã xác minh vị trí';
+            } else {
+                badge.className = "badge bg-warning text-dark";
+                badge.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i>Vị trí chưa chính xác';
+            }
+            
+            // Cập nhật trạng thái nút thanh toán
+            updateSelectedTotal(); 
         }
 
         function toggleSelectAll(masterSource) {
@@ -191,8 +417,10 @@
             if (display) display.innerText = total.toLocaleString('vi-VN') + ' đ';
 
             // Cập nhật trạng thái nút thanh toán
+            const addressVal = document.getElementById('diaChiGiaoHang')?.value.trim() || "";
             document.querySelectorAll('.btn-checkout-action').forEach(btn => {
-                btn.disabled = checkboxes.length === 0;
+                // Chỉ cần địa chỉ không trống và có chọn sản phẩm là cho đặt hàng
+                btn.disabled = (checkboxes.length === 0 || addressVal.length < 5);
             });
 
             // Cập nhật select-all checkbox
@@ -248,6 +476,12 @@
             }
 
             const form = document.getElementById('checkout-form');
+            if (form.querySelector('[name="diaChiGiaoHang"]').value.trim().length < 5) {
+                alert('Vui lòng nhập địa chỉ giao hàng cụ thể!');
+                document.getElementById('diaChiGiaoHang').focus();
+                return;
+            }
+
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;

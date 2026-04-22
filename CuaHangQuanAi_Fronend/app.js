@@ -968,7 +968,7 @@ async function openEditProfileModal() {
 
         const html = `
             <div class="modal fade" id="editProfileModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content border-0 shadow-lg">
                         <div class="modal-header bg-dark text-white">
                             <h5 class="modal-title fw-bold">CHỈNH SỬA HỒ SƠ</h5>
@@ -976,23 +976,40 @@ async function openEditProfileModal() {
                         </div>
                         <form id="form-edit-profile">
                             <div class="modal-body p-4">
-                                <div class="mb-3">
-                                    <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Họ và Tên</label>
-                                    <input type="text" name="hoVaTen" class="form-control" value="${u.hoVaTen || ''}" required>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="mb-3">
+                                            <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Họ và Tên</label>
+                                            <input type="text" name="hoVaTen" class="form-control" value="${u.hoVaTen || ''}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Số điện thoại</label>
+                                            <input type="text" name="sdt" class="form-control" value="${u.sdt || ''}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Địa chỉ mặc định</label>
+                                            <div class="input-group">
+                                                <textarea name="diaChi" id="edit-diaChi" class="form-control" rows="4" required placeholder="Địa chỉ (VD: Ấp, Xã, Phường, Tỉnh...)">${u.diaChi || ''}</textarea>
+                                                <button type="button" class="btn btn-outline-primary" onclick="verifyEditAddress()">
+                                                    <i class="bi bi-search"></i>
+                                                </button>
+                                            </div>
+                                            <small id="edit-verify-status" class="badge bg-secondary p-1 fw-normal fs-11 mt-1 d-none">
+                                                <i class="bi bi-info-circle me-1"></i>Vị trí chưa được kiểm tra
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Vị trí trên bản đồ</label>
+                                        <div id="edit-profile-map"></div>
+                                        <small class="text-muted mt-1 d-block fs-11"><i class="bi bi-info-circle me-1"></i>Kéo thả Marker hoặc Click bản đồ để chọn vị trí.</small>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Số điện thoại</label>
-                                    <input type="text" name="sdt" class="form-control" value="${u.sdt || ''}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fs-13 text-uppercase fw-bold text-secondary">Địa chỉ</label>
-                                    <textarea name="diaChi" class="form-control" rows="3">${u.diaChi || ''}</textarea>
-                                </div>
-                                <div id="edit-profile-msg" class="text-center"></div>
+                                <div id="edit-profile-msg" class="text-center mt-3"></div>
                             </div>
                             <div class="modal-footer border-0 pb-4">
                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                                <button type="submit" class="btn btn-dark px-4 fw-bold">LƯU THAY ĐỔI</button>
+                                <button type="submit" id="btn-save-profile" class="btn btn-dark px-4 fw-bold" disabled>LƯU THAY ĐỔI</button>
                             </div>
                         </form>
                     </div>
@@ -1002,6 +1019,94 @@ async function openEditProfileModal() {
         const modalEl = document.getElementById('editProfileModal');
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
+
+        // Khởi tạo bản đồ sau khi modal hiện
+        let editMap, editMarker;
+        let isEditVerified = false;
+
+        modalEl.addEventListener('shown.bs.modal', function() {
+            const defaultLat = 10.3759, defaultLng = 105.4325;
+            editMap = L.map('edit-profile-map').setView([defaultLat, defaultLng], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(editMap);
+            editMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(editMap);
+
+            editMap.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+                editMarker.setLatLng([lat, lng]);
+                reverseGeocodeEdit(lat, lng);
+            });
+
+            editMarker.on('dragend', () => {
+                const { lat, lng } = editMarker.getLatLng();
+                reverseGeocodeEdit(lat, lng);
+            });
+
+            // Nếu đã có địa chỉ, thử tìm trên map
+            if (u.diaChi) verifyEditAddress();
+        });
+
+        window.verifyEditAddress = async function() {
+            const addr = document.getElementById('edit-diaChi').value.trim();
+            if (!addr || addr.length < 3) return alert("Vui lòng nhập địa chỉ (Ấp/Xã/Phường...)");
+            const btn = document.querySelector('[onclick="verifyEditAddress()"]');
+            btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            
+            try {
+                const q = addr.toLowerCase().includes("việt nam") ? addr : addr + ", Việt Nam";
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const { lat, lon } = data[0];
+                    editMap.setView([lat, lon], 16);
+                    editMarker.setLatLng([lat, lon]);
+                    updateEditVerifyStatus(true);
+                } else {
+                    updateEditVerifyStatus(false);
+                }
+            } catch (e) { updateEditVerifyStatus(false); }
+            btn.disabled = false; btn.innerHTML = '<i class="bi bi-search"></i>';
+        };
+
+        async function reverseGeocodeEdit(lat, lng) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                if (data && data.display_name) {
+                    document.getElementById('edit-diaChi').value = data.display_name;
+                    updateEditVerifyStatus(true);
+                } else {
+                    updateEditVerifyStatus(false);
+                }
+            } catch (e) { updateEditVerifyStatus(false); }
+        }
+
+        function updateEditVerifyStatus(ok) {
+            isEditVerified = ok;
+            const status = document.getElementById('edit-verify-status');
+            const mapEl = document.getElementById('edit-profile-map');
+            const btnSave = document.getElementById('btn-save-profile');
+
+            if (ok) {
+                status.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Địa chỉ đã được định vị trên bản đồ';
+                status.className = 'text-success fw-bold fs-11 mt-1 d-block';
+                if (mapEl) mapEl.style.borderColor = "#198754";
+            } else {
+                status.innerHTML = '<i class="bi bi-info-circle-fill me-1"></i>Gợi ý: Nếu không tìm thấy vị trí chính xác, bạn có thể tự chọn trên bản đồ hoặc cứ tiếp tục lưu địa chỉ đã nhập.';
+                status.className = 'text-warning fw-bold fs-11 mt-1 d-block';
+                if (mapEl) mapEl.style.borderColor = "#ffc107";
+            }
+            
+            // Luôn cho phép lưu nếu địa chỉ có độ dài hợp lý
+            const addr = document.getElementById('edit-diaChi').value.trim();
+            if (btnSave) btnSave.disabled = (addr.length < 5);
+        }
+
+        document.getElementById('edit-diaChi').addEventListener('input', function() {
+            const btnSave = document.getElementById('btn-save-profile');
+            if (btnSave) btnSave.disabled = (this.value.trim().length < 5);
+            // Khi đang gõ thì ẩn badge trạng thái cũ đi để đỡ rối
+            document.getElementById('edit-verify-status').className = 'd-none';
+        });
 
         document.getElementById('form-edit-profile').onsubmit = async (e) => {
             e.preventDefault();
